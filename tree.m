@@ -11,7 +11,6 @@ root_radius = 5;
 x_val = [x1];
 y_val = [y1];
 z_val = [z1];
-disp('hei');
 
 allnodes = newbranch1(x_val,y_val,[levels],x1,y1,degrees,distance,levels,root_radius)
 %allnodes3D = newbranch3D(x_val,y_val,z_val,x1,y1,z1,degrees,distance,levels,root_radius);
