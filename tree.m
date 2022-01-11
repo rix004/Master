@@ -38,11 +38,10 @@ end
 edges = zeros(num_edges,4);
 edges(1,:)=[sqrt((nodes(2,1)-nodes(1,1))^2+(nodes(2,2)-nodes(1,2))^2) 1 2 root_radius]
 p = 1;
-for i = 2:num_nodes-1
-    current_node = i;
-    
-% Bruke levels på en eller annen måte?
-edges
+% for i = 2:num_nodes-1
+%     current_node = i;
+% % Bruke levels på en eller annen måte?
+% edges
     
     
     

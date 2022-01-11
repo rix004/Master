@@ -8,11 +8,11 @@ function [nodes] = newbranch(x_val,y_val,lev,x1,y1,theta, distance,levels,root_r
         lev = [lev l2];
         nodes = [x_val' y_val' lev'];       % lev er en kolonne som holder styr på hvilket nivå noden er på.
         line([x1 x2],[y1,y2],'LineWidth',root_radius);
-        leftside = newbranch1(x_val,y_val,lev,x2,y2,theta+20,distance*0.5,levels-1,root_radius*0.7);
+        leftside = newbranch(x_val,y_val,lev,x2,y2,theta+20,distance*0.5,levels-1,root_radius*0.7);
         x = leftside(:,1)';
         y = leftside(:,2)';
         z = leftside(:,3)';
-        rightside = newbranch1(x,y,z,x2,y2,theta-20,distance*0.5,levels-1,root_radius*0.7);
+        rightside = newbranch(x,y,z,x2,y2,theta-20,distance*0.5,levels-1,root_radius*0.7);
         x_val = [rightside(:,1)'];
         y_val = [rightside(:,2)'];
         lev = [rightside(:,3)'];

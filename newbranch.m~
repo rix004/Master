@@ -1,4 +1,4 @@
-function [nodes] = newbranch1(x_val,y_val,lev,x1,y1,theta, distance,levels,root_radius)
+function [nodes] = newbranch(x_val,y_val,lev,edges,x1,y1,theta, distance,levels,root_radius)
     if levels ~= 1
         x2 = x1+cosd(theta)*distance;
         y2 = y1+sind(theta)*distance;
