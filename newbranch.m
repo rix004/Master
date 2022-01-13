@@ -1,4 +1,4 @@
-function [nodes] = newbranch(x_val,y_val,lev,edges,r_vect,x1,y1,theta, distance,levels,root_radius,rate)
+function [nodes] = newbranch(x_val,y_val,lev,edges,r_vect,x1,y1,theta,distance,levels,root_radius,r_rate,d_rate,delta_theta)
     if levels ~= 1
         x2 = x1+cosd(theta)*distance;
         y2 = y1+sind(theta)*distance;
@@ -10,9 +10,9 @@ function [nodes] = newbranch(x_val,y_val,lev,edges,r_vect,x1,y1,theta, distance,
         edges = [edges dist];
         r_vect = [r_vect root_radius];
         nodes = [x_val' y_val' lev' edges' r_vect'];       % lev er en kolonne som holder styr på hvilket nivå noden er på.
-        line([x1 x2],[y1,y2],'LineWidth',root_radius);
+        line([x1 x2],[y1,y2],'LineWidth',root_radius*5);
         
-        leftside = newbranch(x_val,y_val,lev,edges,r_vect,x2,y2,theta+20,distance*0.5,levels-1,root_radius*rate,rate);
+        leftside = newbranch(x_val,y_val,lev,edges,r_vect,x2,y2,theta-delta_theta,distance*d_rate,levels-1,root_radius*r_rate,r_rate,d_rate,delta_theta);
         
         x = leftside(:,1)';
         y = leftside(:,2)';
@@ -20,7 +20,7 @@ function [nodes] = newbranch(x_val,y_val,lev,edges,r_vect,x1,y1,theta, distance,
         e = leftside(:,4)';
         r = leftside(:,5)';
         
-        rightside = newbranch(x,y,z,e,r,x2,y2,theta-20,distance*0.5,levels-1,root_radius*rate,rate);
+        rightside = newbranch(x,y,z,e,r,x2,y2,theta+delta_theta,distance*d_rate,levels-1,root_radius*r_rate,r_rate,d_rate,delta_theta);
         
         x_val = [rightside(:,1)'];
         y_val = [rightside(:,2)'];
@@ -28,10 +28,10 @@ function [nodes] = newbranch(x_val,y_val,lev,edges,r_vect,x1,y1,theta, distance,
         edges = [rightside(:,4)'];
         r_vect = [rightside(:,5)'];
         nodes = [x_val' y_val' lev' edges' r_vect'];
-        pause(0.01);
+        pause(0.001);
         xlabel('x');
         ylabel('y');
     end
     nodes = [x_val' y_val' lev' edges' r_vect'];
-     
+    %*(0.5 + 1*rand())
 end
