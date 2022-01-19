@@ -14,11 +14,7 @@ rotation_angle = 90;
 Ne = length(edges); Nn = length(nodes);
 
 % Conductance
-g = zeros(length(edges),1);
-for i = 1:length(edges)
-    g(i) = pi*edges(i,4)^4/(8*mu*edges(i,1));
-end
-
+g(:,1) = pi*edges(:,4).^4./(8*mu*edges(:,1));
 
 Bc_nodes = [1; zeros(Nn/2-1,1); ones(Nn/2,1)];  % Noder som du gir randverdier i
 Bc_vals = [1; zeros(Nn/2-1,1); zeros(Nn/2,1)];  % Randverdier
@@ -29,15 +25,13 @@ A = [spdiags(g.^-1,0,Ne,Ne), connections_trimmed; connections_trimmed', sparse(N
 rhs = [-connections*Bc_vals; zeros(sum(1-Bc_nodes),1)];
 
 sol = A\rhs;
-p = sol(1:Nn);
-% q = sol(1:Ne)
-
-for i = 1:Ne
-    q(i) = g(i)*(p(i+1)-p(i));
-end
+p_inner = sol(Ne+1:end);
+q = sol(1:Ne);
+p = Bc_vals;
+p(2:2^(levels-2)) = p_inner;
 
 figure(2)
-for i = 1:Ne-1
+for i = 1:Ne
     x = [nodes(edges(i,2),2) nodes(edges(i,3),2)];
     y = [nodes(edges(i,2),3) nodes(edges(i,3),3)];
     pressure = [p(edges(i,2)) p(edges(i,3))];
