@@ -1,32 +1,47 @@
-function [nodes, edges]=tree(levels,root_radius,trunk_length,x1,y1,theta,r_rate,d_rate,delta_theta)
+clc;clear;
 axis(gca,'equal')
+levels = 9;
+R_trunk = 0.1;    % Radius of trunk (mm)
+L_trunk = 1;      % Length of trunk (mm)
+x0 = 0;
+y0 = 0;
+z0 = 0;
+theta = 90;
+phi = 180;
+R_rate = 0.5;
+L_rate = 0.7;
+rotation_theta = 20;
+rotation_phi = 20;
+
 num_nodes = 2^(levels-1);
 num_edges = num_nodes-1;
-x = [x1];
-y = [y1];
+x = [x0];
+y = [y0];
+z = [z0];
 edges_start = [0];
 radius_start = [0];        % Hvor mye radiusen reduseres med for hvert nivå man går oppover
 
-allnodes = newbranch(x,y,[levels],edges_start,radius_start,x1,y1,theta,trunk_length,levels,root_radius,r_rate,d_rate,delta_theta);
-%allnodes3D = newbranch3D(x_val,y_val,z_val,x1,y1,z1,degrees,distance,levels,root_radius);
+allnodes = newbranch3D(x,y,z,[levels],edges_start,radius_start,x0,y0,z0,theta,phi,L_trunk,levels,R_trunk,R_rate,L_rate,rotation_theta,rotation_phi);
+
 
 % Matrise med oversikt over alle nodene. Nodene nummereres fra roten og
 % oppover, nivåvis, fra høyre til venstre.
 % Kolonne 1 = nodenummer
 % Kolonne 2 = x-koordinat
 % Kolonne 3 = y-koordinat
-% Kolonne 4 = nivå
+% Kolonne 4 = z-koordinat
+% Kolonne 5 = nivå
 
-nodes = zeros(length(allnodes),3);
+nodes = zeros(length(allnodes),4);
 p = levels;
 k = 1;
 for j = 1:levels
     for i = 1:num_nodes
         if allnodes(i,3) == p
             nodes(k,1) = k;
-            nodes(k,2:3) = allnodes(i,1:2);
-            nodes(k,4) = j;
-            allnodes(i,6)=k;
+            nodes(k,2:4) = allnodes(i,1:3);
+            nodes(k,5) = j;
+            allnodes(i,7)=k;
             k = k+1;
         end
     end
