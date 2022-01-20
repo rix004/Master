@@ -21,12 +21,12 @@ function [nodes] = newbranch(x_val,y_val,lev,edges,r_vect,x1,y1,theta,distance,l
         
         rightside = newbranch(x,y,z,e,r,x2,y2,theta+delta_theta,distance*d_rate,levels-1,root_radius*r_rate,r_rate,d_rate,delta_theta);
         
-        x_val = [rightside(:,1)'];
-        y_val = [rightside(:,2)'];
-        lev = [rightside(:,3)'];
-        edges = [rightside(:,4)'];
-        r_vect = [rightside(:,5)'];
-        nodes = [x_val' y_val' lev' edges' r_vect'];
+        x_val = rightside(:,1);
+        y_val = rightside(:,2);
+        lev = rightside(:,3);
+        edges = rightside(:,4);
+        r_vect = rightside(:,5);
+        nodes = [x_val y_val lev edges r_vect];
         pause(0.001);
         xlabel('x');
         ylabel('y');

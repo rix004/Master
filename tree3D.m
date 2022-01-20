@@ -1,17 +1,5 @@
-clc;clear;
-axis(gca,'equal')
-levels = 9;
-R_trunk = 0.1;    % Radius of trunk (mm)
-L_trunk = 1;      % Length of trunk (mm)
-x0 = 0;
-y0 = 0;
-z0 = 0;
-theta = 90;
-phi = 0;
-R_rate = 0.5;
-L_rate = 0.7;
-rotation_theta = 90;
-rotation_phi = 20;
+function [nodes,edges]= tree3D(levels,R_trunk,L_trunk,x0,y0,z0,theta,phi,R_rate,L_rate,delta_theta,delta_phi)
+axis(gca,'equal');
 
 num_nodes = 2^(levels-1);
 num_edges = num_nodes-1;
@@ -21,7 +9,7 @@ z = [z0];
 edges_start = [0];
 radius_start = [0];        % Hvor mye radiusen reduseres med for hvert nivå man går oppover
 
-allnodes = newbranch3D(x,y,z,[levels],edges_start,radius_start,x0,y0,z0,theta,phi,L_trunk,levels,R_trunk,R_rate,L_rate,rotation_theta,rotation_phi);
+allnodes = newbranch3D(levels,x,y,z,[levels],edges_start,radius_start,x0,y0,z0,theta,phi,L_trunk,R_trunk,R_rate,L_rate,delta_theta,delta_phi);
 
 
 % Matrise med oversikt over alle nodene. Nodene nummereres fra roten og
@@ -69,16 +57,16 @@ for j = 1:levels
     end
     p = p-1;
 end
-% g = 2;
-% f = 2;
-% for i = 1:num_edges/2
-%     edges(g,2) = f;
-%     edges(g+1,2) = f;
-%     g = g+2;
-%     f = f+1;
-% end
+g = 2;
+f = 2;
+for i = 1:num_edges/2
+    edges(g,2) = f;
+    edges(g+1,2) = f;
+    g = g+2;
+    f = f+1;
+end
 
-
+end
     
     
     
