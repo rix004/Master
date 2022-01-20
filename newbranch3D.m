@@ -10,7 +10,7 @@ function [nodes] = newbranch3D(levels,x_val,y_val,z_val,lev,edges,r_vect,x1,y1,z
         lev = [lev levels-1];
         edges = [edges dist];
         r_vect = [r_vect root_radius];
-        nodes = [x_val' y_val' z_val' lev' edges' r_vect'];       % lev er en kolonne som holder styr på hvilket nivå noden er på.
+        %nodes = [x_val' y_val' z_val' lev' edges' r_vect'];       % lev er en kolonne som holder styr på hvilket nivå noden er på.
         line([x1 x2],[y1,y2],[z1,z2],'LineWidth',root_radius*20);
         leftside = newbranch3D(levels-1,x_val,y_val,z_val,lev,edges,r_vect,x2,y2,z2,theta-delta_theta*(0.5 + 1*rand()),phi+delta_phi,distance*d_rate,root_radius*r_rate,r_rate,d_rate,delta_theta,90*rand());
         
@@ -30,7 +30,7 @@ function [nodes] = newbranch3D(levels,x_val,y_val,z_val,lev,edges,r_vect,x1,y1,z
         lev = [rightside(:,4)'];
         edges = [rightside(:,5)'];
         r_vect = [rightside(:,6)'];
-        nodes = [x_val' y_val' z_val' lev' edges' r_vect'];
+        %nodes = [x_val' y_val' z_val' lev' edges' r_vect'];
         pause(0.001);
         xlabel('x');
         ylabel('y');

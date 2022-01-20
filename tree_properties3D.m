@@ -1,6 +1,6 @@
 clc; clear;
 mu = 5.5;           % viscosity (mPa*s)
-levels = 4;
+levels = 9;
 R_trunk = 0.1;    % Radius of trunk (mm)
 L_trunk = 1;      % Length of trunk (mm)
 x0 = 0;
@@ -34,12 +34,12 @@ q = sol(1:Ne);
 p = Bc_vals;
 p(2:2^(levels-2)) = p_inner;
 
-% figure(2)
-% for i = 1:Ne
-%     x = [nodes(edges(i,2),2) nodes(edges(i,3),2)];
-%     y = [nodes(edges(i,2),3) nodes(edges(i,3),3)];
-%     pressure = [p(edges(i,2)) p(edges(i,3))];
-%     plot3(x,y,pressure,'.-','Color','Red')
-%     hold on
-%     grid on
-% end
+figure(2)
+for i = 1:Ne
+    x = [nodes(edges(i,2),2) nodes(edges(i,3),2)];
+    y = [nodes(edges(i,2),3) nodes(edges(i,3),3)];
+    pressure = [p(edges(i,2)) p(edges(i,3))];
+    plot3(x,y,pressure,'.-','Color','Red')
+    hold on
+    grid on
+end

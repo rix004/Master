@@ -7,7 +7,7 @@ y = [y1];
 edges_start = [0];
 radius_start = [0];        % Hvor mye radiusen reduseres med for hvert nivå man går oppover
 
-allnodes = newbranch(x,y,[levels],edges_start,radius_start,x1,y1,theta,trunk_length,levels,root_radius,r_rate,d_rate,delta_theta);
+allnodes = newbranch(x,y,[levels],edges_start,radius_start,x1,y1,theta,trunk_length,levels,root_radius,r_rate,d_rate,delta_theta)
 %allnodes3D = newbranch3D(x_val,y_val,z_val,x1,y1,z1,degrees,distance,levels,root_radius);
 
 % Matrise med oversikt over alle nodene. Nodene nummereres fra roten og
@@ -54,6 +54,7 @@ for j = 1:levels
     end
     p = p-1;
 end
+
 g = 2;
 f = 2;
 for i = 1:num_edges/2

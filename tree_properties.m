@@ -24,17 +24,17 @@ A = [spdiags(g.^-1,0,Ne,Ne), connections_trimmed; connections_trimmed', sparse(N
 rhs = [-connections*Bc_vals; zeros(sum(1-Bc_nodes),1)];
 
 sol = A\rhs;
-p_inner = sol(Ne+1:end);
+p = sol(Ne+1:end);
 q = sol(1:Ne);
-p = Bc_vals;
-p(2:2^(levels-2)) = p_inner;
+p_all = Bc_vals;
+p_all(2:(length(p)+1)) = p;
 
-% figure(2)
-% for i = 1:Ne
-%     x = [nodes(edges(i,2),2) nodes(edges(i,3),2)];
-%     y = [nodes(edges(i,2),3) nodes(edges(i,3),3)];
-%     pressure = [p(edges(i,2)) p(edges(i,3))];
-%     plot3(x,y,pressure,'.-','Color','Red')
-%     hold on
-%     grid on
-% end
+figure(2)
+for i = 1:Ne
+    x = [nodes(edges(i,2),2) nodes(edges(i,3),2)];
+    y = [nodes(edges(i,2),3) nodes(edges(i,3),3)];
+    pressure = [p_all(edges(i,2)) p_all(edges(i,3))];
+    plot3(x,y,pressure,'.-','Color','Red')
+    hold on
+    grid on
+end
