@@ -5,7 +5,7 @@ R_trunk = 0.1;    % Radius of trunk (mm)
 L_trunk = 1;      % Length of trunk (mm)
 x0 = 0;
 y0 = 0;
-theta = 90*;
+theta = 90;
 R_rate = 0.5;
 L_rate = 0.7;
 rotation_angle = 90;
@@ -70,15 +70,11 @@ for i = 1:length(R)
     Polygons(i,4:3+length(R{i}))=R{i};
 end
 
-
 for i = 1:Ntn
-    coords = V(R{i},:);
-    if ismember(inf, coords)
-        coords(1,:) = [2*terminal_nodes(i,2),2*terminal_nodes(i,3)];
-    end
-    coords
-%     pgon = polyshape(coords(:,1),coords(:,2))
-%     hold on
-end
+    coords = V(R{i},:)
+    if isMember(inf, coords)
+        coords(1,:) = [2*
+        
+
 
 

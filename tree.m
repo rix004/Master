@@ -1,71 +1,37 @@
-function [nodes, edges]=tree(levels,root_radius,trunk_length,x1,y1,theta,r_rate,d_rate,delta_theta)
-axis(gca,'equal')
-num_nodes = 2^(levels-1);
-num_edges = num_nodes-1;
-x = [x1];
-y = [y1];
-edges_start = [0];
-radius_start = [0];        % Hvor mye radiusen reduseres med for hvert nivå man går oppover
-
-allnodes = newbranch(x,y,[levels],edges_start,radius_start,x1,y1,theta,trunk_length,levels,root_radius,r_rate,d_rate,delta_theta)
-%allnodes3D = newbranch3D(x_val,y_val,z_val,x1,y1,z1,degrees,distance,levels,root_radius);
-
-% Matrise med oversikt over alle nodene. Nodene nummereres fra roten og
-% oppover, nivåvis, fra høyre til venstre.
-% Kolonne 1 = nodenummer
-% Kolonne 2 = x-koordinat
-% Kolonne 3 = y-koordinat
-% Kolonne 4 = nivå
-
-nodes = zeros(length(allnodes),3);
-p = levels;
-k = 1;
-for j = 1:levels
-    for i = 1:num_nodes
-        if allnodes(i,3) == p
-            nodes(k,1) = k;
-            nodes(k,2:3) = allnodes(i,1:2);
-            nodes(k,4) = j;
-            allnodes(i,6)=k;
-            k = k+1;
-        end
+function [nodes] = tree(x_val,y_val,lev,edges,r_vect,x1,y1,theta,distance,levels,root_radius,r_rate,d_rate,delta_theta)
+    if levels ~= 1
+        x2 = x1+cosd(theta)*distance;
+        y2 = y1+sind(theta)*distance;
+        dist = sqrt((x2-x1)^2+(y2-y1)^2);
+        x_val = [x_val x2];
+        y_val = [y_val y2];
+        lev = [lev levels-1];
+        edges = [edges dist];
+        r_vect = [r_vect root_radius];
+        nodes = [x_val' y_val' lev' edges' r_vect'];       % lev er en kolonne som holder styr på hvilket nivå noden er på.
+        line([x1 x2],[y1,y2],'LineWidth',root_radius*20,'Color',[0.8500, 0.3250, 0.0980]);
+        hold on
+        
+        leftside = tree(x_val,y_val,lev,edges,r_vect,x2,y2,theta-delta_theta,distance*d_rate,levels-1,root_radius*r_rate,r_rate,d_rate,delta_theta);
+        
+        x = leftside(:,1)';
+        y = leftside(:,2)';
+        z = leftside(:,3)';
+        e = leftside(:,4)';
+        r = leftside(:,5)';
+        
+        rightside = tree(x,y,z,e,r,x2,y2,theta+delta_theta,distance*d_rate,levels-1,root_radius*r_rate,r_rate,d_rate,delta_theta);
+        
+        x_val = [rightside(:,1)'];
+        y_val = [rightside(:,2)'];
+        lev = [rightside(:,3)'];
+        edges = [rightside(:,4)'];
+        r_vect = [rightside(:,5)'];
+        nodes = [x_val' y_val' lev' edges' r_vect'];
+        pause(0.001);
+        xlabel('x');
+        ylabel('y');
     end
-    p = p-1;
+    nodes = [x_val' y_val' lev' edges' r_vect'];
+    %*(0.5 + 1*rand())
 end
-% Matrise med oversikt over alle kantene. Kantene nummereres fra roten og
-% oppver, nivåvis fra høyre til venstre.
-% Kolonne 1 = lengde
-% Kolonne 2 = node på nedside
-% Kolonne 3 = node på overside
-% Kolonne 4 = radius
-
-edges = zeros(num_edges,4);
-edges(1,:)=[sqrt((nodes(2,2)-nodes(1,2))^2+(nodes(2,3)-nodes(1,3))^2) 1 2 root_radius];
-k=1;
-p = levels;
-for j = 1:levels
-    for i = 2:num_nodes
-        if allnodes(i,3) == p
-            edges(k,1) = allnodes(i,4);
-            edges(k,3) = k+1;
-            edges(k,4) = allnodes(i,5);
-            k = k+1;
-        end
-    end
-    p = p-1;
-end
-
-g = 2;
-f = 2;
-for i = 1:num_edges/2
-    edges(g,2) = f;
-    edges(g+1,2) = f;
-    g = g+2;
-    f = f+1;
-end
-end
-
-
-    
-    
-    

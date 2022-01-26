@@ -13,7 +13,7 @@ L_rate = 0.7;
 delta_theta = 90;
 delta_phi = 30;
 
-[nodes, edges]= tree3D(levels,R_trunk,L_trunk,x0,y0,z0,theta,phi,R_rate,L_rate,delta_theta,delta_phi);
+[nodes, edges]= GetMatrices3D(levels,R_trunk,L_trunk,x0,y0,z0,theta,phi,R_rate,L_rate,delta_theta,delta_phi);
 
 Ne = length(edges); Nn = length(nodes);
 
