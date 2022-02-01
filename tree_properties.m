@@ -1,11 +1,11 @@
 clc; clear;
 mu = 5.5;           % viscosity (mPa*s)
-levels = 4;
+levels = 9;
 R_trunk = 0.1;    % Radius of trunk (mm)
 L_trunk = 1;      % Length of trunk (mm)
 x0 = 0;
 y0 = 0;
-theta = 90*;
+theta = 90;
 R_rate = 0.5;
 L_rate = 0.7;
 rotation_angle = 90;
@@ -46,39 +46,16 @@ Ntn = 2^(levels-2); % Antall terminalnoder
 terminal_nodes = nodes(Nn-Ntn+1:end,:);
 tn_x = terminal_nodes(:,2);
 tn_y = terminal_nodes(:,3);
+p = terminal_nodes(:,2:3);
+[v,c,xy]=VoronoiLimit(tn_x,tn_y,'bs_ext',[-2 2 -2 2;-2 -2 2 2]);
 
-figure(1)
-%voronoi(tn(:,1),tn(:,2))
-%hold on
-[vx,vy] = voronoi(tn_x,tn_y);
-plot(vx,vy,'*-','Color','Blue'); hold on; axis([-5 5 -5 5])
-
- % Delaunay-triangulering av terminalnodene.
-DT = delaunayTriangulation(tn_x,tn_y);
-
-% V består av rader med voronoi-hjørner.
-% R består av regioner - hvert tall representerer området rundt hver rad i
-% tn_x/tny, og kobles til rader i V for koordinater.
-[V,R] = voronoiDiagram(DT);
-
-
- % Lengden av V(R{1},:) angir antall hjørner i polygonet
-Polygons = zeros(Ntn,3+length(V(R{1},:)));
-Polygons(:,1:3) = terminal_nodes(:,1:3);
- % Obtain vertices enclosing region 1
-for i = 1:length(R) 
-    Polygons(i,4:3+length(R{i}))=R{i};
-end
-
-
+figure(3)
 for i = 1:Ntn
-    coords = V(R{i},:);
-    if ismember(inf, coords)
-        coords(1,:) = [2*terminal_nodes(i,2),2*terminal_nodes(i,3)];
-    end
-    coords
-%     pgon = polyshape(coords(:,1),coords(:,2))
-%     hold on
+    coords = v(c{i},:);
+    pgon = polyshape(coords(:,1),coords(:,2));
+    pg = plot(pgon);
+    pg.FaceColor = i/200*[0.4 0.6 0.7];
+    hold on
 end
-
-
+plot(tn_x,tn_y,'.')
+axis([-2 2 -0.5 2]);
