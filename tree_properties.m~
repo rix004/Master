@@ -56,10 +56,10 @@ for i = 1:Ntn
     coords = v(c{i},:);
     pgon = polyshape(coords(:,1),coords(:,2));
     pg = plot(pgon);
-    q_here = q(tn(i,1)-1)
+    q = q(tn(i,1)-1)
     q_max = max(q(tn(:,1)-1))
     q_min = min(q(tn(:,1)-1))
-    ind = ceil(Ntn *0.7 * (q_here/(q_max-q_min)));
+    ind = Ntn * round(q/(q_max-q_min))
     pg.FaceColor = map(ind,:);
     hold on
 end
