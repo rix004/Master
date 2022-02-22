@@ -1,6 +1,6 @@
 clc; clear;
 mu = 5.5;           % viscosity (mPa*s)
-levels = 9;
+levels = 3;
 R_trunk = 0.1;    % Radius of trunk (mm)
 L_trunk = 1;      % Length of trunk (mm)
 x0 = 0;
@@ -9,7 +9,7 @@ theta = 90;
 R_rate = 0.5;
 L_rate = 0.7;
 rotation_angle = 90;
-[nodes, edges]= GetMatrices(levels,R_trunk,L_trunk,x0,y0,theta,R_rate,L_rate,rotation_angle);
+[nodes, edges]= GetTree(levels,R_trunk,L_trunk,x0,y0,theta,R_rate,L_rate,rotation_angle);
 Ne = length(edges); Nn = length(nodes);
 
 
@@ -56,12 +56,12 @@ for i = 1:Ntn
     coords = v(c{i},:);
     pgon = polyshape(coords(:,1),coords(:,2));
     pg = plot(pgon);
-    q_here = q(tn(i,1)-1)
-    q_max = max(q(tn(:,1)-1))
-    q_min = min(q(tn(:,1)-1))
+    q_here = q(tn(i,1)-1);
+    q_max = max(q(tn(:,1)-1));
+    q_min = min(q(tn(:,1)-1));
     ind = ceil(Ntn *0.7 * (q_here/(q_max-q_min)));
     pg.FaceColor = map(ind,:);
     hold on
 end
 plot(tn_x,tn_y,'r.')
-axis([-2 2 -0.5 2]);
+axis([min(tn(:,2))-abs(tn(end,2)-tn(end-1,2)) max(tn(:,2))+abs(tn(end,2)-tn(end-1,2)) min(tn(:,3))-abs(tn(end,2)-tn(end-1,2)) max(tn(:,3))+abs(tn(end,2)-tn(end-1,2))]);

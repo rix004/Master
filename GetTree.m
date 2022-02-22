@@ -1,4 +1,4 @@
-function [nodes, edges]=GetMatrices(levels,root_radius,trunk_length,x1,y1,theta,r_rate,d_rate,delta_theta)
+function [nodes, edges]=GetTree(levels,root_radius,trunk_length,x1,y1,theta,r_rate,d_rate,delta_theta)
 axis(gca,'equal')
 num_nodes = 2^(levels-1);
 num_edges = num_nodes-1;
@@ -7,7 +7,7 @@ y = [y1];
 edges_start = [0];
 radius_start = [0];        % Hvor mye radiusen reduseres med for hvert nivå man går oppover
 
-allnodes = tree(x,y,[levels],edges_start,radius_start,x1,y1,theta,trunk_length,levels,root_radius,r_rate,d_rate,delta_theta);
+allnodes = MakeTree(x,y,[levels],edges_start,radius_start,x1,y1,theta,trunk_length,levels,root_radius,r_rate,d_rate,delta_theta);
 
 % Matrise med oversikt over alle nodene. Nodene nummereres fra roten og
 % oppover, nivåvis, fra høyre til venstre.
