@@ -4,7 +4,7 @@
 % distance angir avstand fra punktet (x,y) til punktet (x_near, y_near).
 
 
-function[x_near,y_near,index,distance]=NearestNeighbour(x,y,nodes)
+function[x_near,y_near,index,distance]=NearestNode(x,y,nodes)
 distance = sqrt((x-nodes(1,2))^2+(y-nodes(1,3))^2);
 x_near = nodes(1,2);
 y_near = nodes(1,3);

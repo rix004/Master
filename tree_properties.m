@@ -1,14 +1,14 @@
 clc; clear;
 mu = 5.5;           % viscosity (mPa*s)
-levels = 3;
+levels = 10;
 R_trunk = 0.1;    % Radius of trunk (mm)
 L_trunk = 1;      % Length of trunk (mm)
 x0 = 0;
 y0 = 0;
 theta = 90;
 R_rate = 0.5;
-L_rate = 0.7;
-rotation_angle = 90;
+L_rate = 0.63;
+rotation_angle = 60;
 [nodes, edges]= GetTree(levels,R_trunk,L_trunk,x0,y0,theta,R_rate,L_rate,rotation_angle);
 Ne = length(edges); Nn = length(nodes);
 
