@@ -1,4 +1,5 @@
 function [nodes] = MakeTree(x_val,y_val,lev,edges,r_vect,x1,y1,theta,distance,levels,root_radius,r_rate,d_rate,delta_theta)
+axis(gca,'equal')
     if levels ~= 1
         x2 = x1+cosd(theta)*distance;
         y2 = y1+sind(theta)*distance;

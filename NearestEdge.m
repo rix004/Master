@@ -4,8 +4,8 @@ edges = Tree.edges;
 p = [x y];
 
 % Check first edge
-x1 = [nodes(edges(1,2),2) nodes(edges(1,2),3)];
-x2 = [nodes(edges(1,3),2) nodes(edges(1,3),3)];
+x1 = [nodes(edges(1,2),1) nodes(edges(1,2),2)];
+x2 = [nodes(edges(1,3),1) nodes(edges(1,3),2)];
 d1 = norm(p-x1);
 d2 = norm(x2-x1);
 d3 = norm(p-x2);
@@ -21,8 +21,8 @@ end
 
 % Check if any other edge is closer
 for i = 2:size(edges,1)
-    X1 = [nodes(edges(i,2),2) nodes(edges(i,2),3)];
-    X2 = [nodes(edges(i,3),2) nodes(edges(i,3),3)];
+    X1 = [nodes(edges(i,2),1) nodes(edges(i,2),2)];
+    X2 = [nodes(edges(i,3),1) nodes(edges(i,3),2)];
     D1 = norm(p-X1);
     D2 = norm(X2-X1);
     D3 = norm(p-X2);
