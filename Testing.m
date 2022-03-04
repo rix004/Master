@@ -1,35 +1,46 @@
 % Testing
 clc; clear;     
-DT.Levels = 4;
+DT.Levels = 8;
 DT.StartPos = [0 0];
 DT.StartAngle = 90;
 DT.RotationAngle = 90;
-DT.TrunkRadius = 0.1;    % Radius of trunk (mm)
+DT.TrunkRadius = 0.1;
 DT.RadiusRate = 0.5;
-DT.TrunkLength = 1;      % Length of trunk (mm)
+DT.TrunkLength = 1;      
 DT.LengthRate = 0.7;
 
 DetTree= GetTree(DT);
-
+DrawTree(DetTree)
 nodes = DetTree.nodes;
 edges = DetTree.edges;
-%[x,y,i,d]=NearestNode(-1.7615,-0.0700,nodes)
-%[edge_nr,dist]=NearestEdge(-1.7615,-0.0700,DetTree)
-testtree.nodes = nodes;
-testtree.edges = edges;
-testtree.TrunkRadius = 2;
-testtree.RadiusRate = 0.5;
-rrt_tree = RRT_Tree(testtree,-2,2,-2,2,100);
+
+RandomTree.nodes = nodes;
+RandomTree.edges = edges;
+RandomTree.TrunkRadius = 2;
+RandomTree.RadiusRate = 0.5;
+rrt_tree = RRT_Tree(RandomTree,-2,2,-2,2,1000);
 DrawTree(rrt_tree)
 
-% levels = 5;
-% R_trunk = 0.1;   
-% L_trunk = 1;      
-% R_rate = 0.5;
-% L_rate = 0.5;
-% rotation_angle = 90;
-% [nodes, edges]= GetTree(levels,R_trunk,L_trunk,0,0,90,R_rate,L_rate,rotation_angle);
+
+%%% VORONOIDIAGRAM %%%
+%bs_int=[.2 .8 .8 .2;.6 .6 .2 .2]';
+% bs_ext=[-.8 1.80 .5 -.8;-.05 -.05 1.7 -.05]';
+% [X,Y] = meshgrid(-2:.5:2, -2:.5:2);
+% X=X(:);Y=Y(:);
+% [V,C,XY]=VoronoiLimit(X,Y,'figure','on');
 % 
+% figure()
+% for i = 1:length(C)
+%     coords = V(C{i},:);
+%     pgon = polyshape(coords(:,1),coords(:,2));
+%     pg = plot(pgon);
+%     hold on
+% end
+
+
+
+
+
 % tree.nodes = nodes;
 % tree.edges = edges;
 % x = -0.6;
@@ -39,6 +50,8 @@ DrawTree(rrt_tree)
 % hold on
 % plot(Point(1),Point(2),'.')
 
+
+%%% Eksperimentering med ny kode for  binært tre
 
 % values.Levels = 9;
 % values.Angle = 90;
@@ -67,11 +80,3 @@ DrawTree(rrt_tree)
 %     TestTree.nodes = NewTree.nodes;
 %     TestTree.edges = NewTree.edges;
 % end
-
-
-%NewTree = AddOnePoint(TestTree,-0.6,0.7);
-%NewTree.nodes
-%NewTree.edges
-%line([NewTree.nodes(end-1,2) NewTree.nodes(end,2)],[NewTree.nodes(end-1,3),NewTree.nodes(end,3)],'LineWidth',NewTree.edges(end,4),'Color',[0.8500, 0.3250, 0.0980]);
-
-% DrawTree(TestTree);
