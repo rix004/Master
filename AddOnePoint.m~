@@ -43,8 +43,6 @@ if size(Tree.edges,1) > 0
     % Column 2: Length of edge
     % Column 3: Edge number
         check_edges = [];
-        Tree.edges
-        k
         for i = 1:size(Tree.edges,1)
             if Tree.edges(i,2) == k
                 n2 = Tree.edges(i,3);
@@ -60,7 +58,7 @@ if size(Tree.edges,1) > 0
                 check_edges = [check_edges;n2 d2 i theta];
             end
         end
-        check_edges
+
         % Check which edge is closer by checking which one makes the smallest angle with the vector from (x,y) to (x_near,y_near).
         angles = check_edges(:,4);
         theta = min(angles);

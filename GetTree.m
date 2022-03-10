@@ -16,8 +16,7 @@ num_edges = num_nodes-1;
 % Kolonne 1 = x-koordinat
 % Kolonne 2 = y-koordinat
 % Kolonne 3 = nivå
-
-nodes = zeros(length(allnodes),3);
+nodes = zeros(size(allnodes,1),3);
 p = v.Levels;
 k = 1;
 for j = 1:v.Levels

@@ -1,4 +1,4 @@
-function[tree]=RRT_Tree(tree,xMin,xMax,yMin,yMax,Np)
+function[tree]=RRT_Tree(tree,D,Np)
 % nodes: Matrix with all the nodes in the tree. 
 % Column 1: x-coordinate
 % Column 2: y-coordinate
@@ -11,15 +11,15 @@ function[tree]=RRT_Tree(tree,xMin,xMax,yMin,yMax,Np)
 % Column 4 = radius
 
     for i = 1:Np
-        [x_r,y_r] = RandomState(xMax,xMin,yMax,yMin);
+        [x_r,y_r] = RandomState(D);
         NewTree = AddOnePoint(tree,x_r,y_r);
         tree.nodes = NewTree.nodes;
         tree.edges = NewTree.edges;
     end
 
-function[x_rand,y_rand]=RandomState(xMax,xMin,yMax,yMin)
-    x_rand = xMin + (xMax-xMin).*rand(1,1);
-    y_rand = yMin + (yMax-yMin).*rand(1,1);
+function[x_rand,y_rand]=RandomState(D)
+    x_rand = D(1) + (D(2)-D(1)).*rand(1,1);
+    y_rand = D(3) + (D(4)-D(3)).*rand(1,1);
 end
 
 
