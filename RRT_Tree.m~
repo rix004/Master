@@ -24,22 +24,18 @@ elseif ForbTree == 1
     Tn = [];
     for i = 1:length(EndNodes)
         if find_tn(i) == 0
-            Tn = [Tn;tree.nodes(EndNodes(i),:)];
+            Tn = [Tn;nodes(EndNodes(i),:)];
         end
     end
-    ForbNodesIndex = ismember(tree.nodes,Tn);
-    ForbNodes = tree.nodes(ForbNodesIndex(:,1)==0,:);
-    ForbiddenTree.nodes = ForbNodes;
-    ForbiddenTree.edges = tree.edges;
-    ForbNodes
-    tree.edges
+    ForbNodesIndex = ismember(tree.nodes,Tn)
+    ForbNodes = tree.nodes(ForbNodesIndex==0)
+    Fori
     for i = 1:Np
         [x_r,y_r] = RandomState(D);
-        NewTree = AddOnePoint1(tree,ForbiddenTree,x_r,y_r);
+        NewTree = AddOnePoint(tree,x_r,y_r);
         tree.nodes = NewTree.nodes;
         tree.edges = NewTree.edges;
     end
-end
 
 function[x_rand,y_rand]=RandomState(D)
     x_rand = D(1) + (D(2)-D(1)).*rand(1,1);

@@ -1,5 +1,5 @@
 function DrawTree(Tree)
-figure('Name','Tree')
+figure(1)
 for i = 1:size(Tree.edges,1)
     x1 = Tree.nodes(Tree.edges(i,2),1);
     x2 = Tree.nodes(Tree.edges(i,3),1);

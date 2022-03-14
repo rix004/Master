@@ -1,14 +1,24 @@
-function[NewTree]=AddOnePoint(Tree,x,y)
+function[NewTree]=AddOnePoint1(Tree,ForbiddenTree,x,y)
 % Find the node in Tree closest to (x,y). This point has node number k, and the distance to it from (x,y) is d1.
-[x_near,y_near,k,d1] = NearestNode(x,y,Tree.nodes);
+OK_nodes = ismember(Tree.nodes,ForbiddenTree.nodes);
+OK_edges = ismember(Tree.edges,ForbiddenTree.edges);
+OK_nodes=OK_nodes(:,1);
+OK_edges=OK_edges(:,1);
+Tree.nodes(OK_nodes==0,:)
+Tree.edges(OK_edges==0,:)
+[x_near,y_near,k,d1] = NearestNode(x,y,Tree.nodes(OK_nodes==0,:))
+Tree.nodes(:,1:2)
+k = find([x_near y_near]==Tree.nodes(:,1:2));
+k = k(1);
 
 % Check if there are any edges. If not, a new edge is made from (x,y)
 % to the closest node.
 
 % If there are any edges, check if any edge is  closer to (x,y) than the 
 % closest node. If so, the new edge is made as a normal to this edge. 
-if size(Tree.edges,1) > 0
-    [edge_nr,DistToEdge] = NearestEdge(x,y,Tree.nodes,Tree.edges);
+if size(Tree.edges(OK_edges==0,:),1) > 0
+    disp('1')
+    [edge_nr,DistToEdge] = NearestEdge(x,y,Tree.nodes,Tree.edges(OK_edges==0,:));
     if DistToEdge < d1
             % Find point on edge
             X1 = [Tree.nodes(Tree.edges(edge_nr,2),1) Tree.nodes(Tree.edges(edge_nr,2),2)];
@@ -43,7 +53,7 @@ if size(Tree.edges,1) > 0
     % Column 3: Edge number
         check_edges = [];
         for i = 1:size(Tree.edges,1)
-            if Tree.edges(i,2) == k
+            if Tree.edges(i,2) == k && ismember(Tree.edges(i,2),ForbiddenTree.edges(:,2))==0
                 n2 = Tree.edges(i,3);
                 d2 = Tree.edges(i,1);
                 d3 = sqrt((x-Tree.nodes(n2,1))^2+(y-Tree.nodes(n2,2))^2);
@@ -58,6 +68,7 @@ if size(Tree.edges,1) > 0
             end
         end
         if size(check_edges,1)>0
+            disp('3')
             % Check which edge is closer by checking which one makes the smallest angle with the vector from (x,y) to (x_near,y_near).
             angles = check_edges(:,4);
             theta = min(angles);
@@ -104,7 +115,8 @@ if size(Tree.edges,1) > 0
     else
         disp('Shady ting skjer 1')
     end
-elseif size(Tree.edges,1) == 0
+elseif size(Tree.edges(OK_edges==0,:),1) == 0
+    disp('2')
         % Update tree
         NewTree.nodes = [Tree.nodes;x y Tree.nodes(end,3)+1];
         NewTree.edges = [Tree.edges;d1 k size(Tree.nodes,1)+1 Tree.TrunkRadius];

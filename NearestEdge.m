@@ -1,6 +1,4 @@
-function[edge_nr,d] = NearestEdge(x,y,Tree)
-nodes = Tree.nodes;
-edges = Tree.edges;
+function[edge_nr,d] = NearestEdge(x,y,nodes,edges)
 p = [x y];
 
 % Check first edge
