@@ -46,13 +46,17 @@ function [V,C,XY]=VoronoiLimit(varargin)
 % --------------------------------------------------------------
 warning('off','map:polygon:noExternalContours');
 version=[3 0 2 2];
+
 %% SETUP
+
 % USERTYPE
 [~,hostname]=system('hostname');
 user=0;
 if strcmp(hostname(1:end-1),'DESKTOP-PC4MSAH') || strcmp(hostname(1:end-1),'Sievers')
     user=1;
 end
+
+
 % DETERMINE IF A MORE RECENT VERSION OF OOT IS AVAILABLE ON THE MATHWORKS FILEEXCHANGE
 try
     onlinedata = webread('http://se.mathworks.com/matlabcentral/fileexchange/34428-voronoilimit');
@@ -92,6 +96,8 @@ if try_ver==1
         end
     end
 end
+
+
 %% ALGORITHM BEGINNING
 try
     if nargin==0
@@ -512,6 +518,7 @@ try
                 end
                 diagnostics=diagnostics2;
             end
+
             if im==2
                 ixpo_new=ixpo{im};
             end
@@ -528,6 +535,7 @@ try
                                     neighbors{ij}=[neighbors{ij};il];
                                 end
                             end
+
                         end
                         neighbors{ij}=unique(neighbors{ij});
                         neighbors_ok_ratio(ij,:)=[sum(poly_ok(neighbors{ij})==0)/numel(neighbors{ij}) ixpo_new(ij) ij];
@@ -989,4 +997,5 @@ try
 catch me
     disp('stop')
 end
+
 end

@@ -1,8 +1,9 @@
+close all
 clc; clear;
 RootNode = [0 0];
 
 % Deterministic tree data
-DT.Levels = 4;
+DT.Levels = 5;
 DT.StartPos = RootNode;
 DT.StartAngle = 90;
 DT.RotationAngle = 90;
@@ -14,7 +15,7 @@ DT.LengthRate = 0.65;
 % Random tree data
 RandomTree.TrunkRadius = 0.1;
 RandomTree.RadiusRate = 0.5;
-Np = 500;
+Np = 50;
 Domain = [-2 2 0 3];
 
 trees = {'Deterministic','Random','Combinated','Half Deterministic'};
@@ -130,18 +131,49 @@ p_all(indexes) = p;
 
 %%% VORONOI DIAGRAM %%%
 Ntn = length(Tn); % Antall terminalnoder
-bs_ext = [-5 5 5 -5;-5 -5 5 5]';
-[v,c,xy]=VoronoiLimit(Tn(:,1),Tn(:,2));
+bs_ext = 2*[-2 2 -2 2];
+[v,c,xy]=VoronoiLimit(Tn(:,1),Tn(:,2),'bs_ext',[-.8 .5 1.80 -.8;-.05 1.7 -.05 -.05]');
+for i = 1:size(c,1)
+    cell_index = find(xy==Tn(i,1:2));
+    cells(i)=c(cell_index(1));
+end
+cells = cells';
+
+%find(v(:,1)>bs_ext(2))
+%find(v(:,2)>bs_ext(4))
+% v(find(v(:,1)>bs_ext(2)),1)=bs_ext(2);
+% v(find(v(:,1)<bs_ext(1)),1)=bs_ext(1);
+% v(find(v(:,2)>bs_ext(4)),2)=bs_ext(4);
+% v(find(v(:,2)<bs_ext(2)),2)=bs_ext(3);
 
 figure('Name','Flux intensity plot')
 map = gray(Ne);
+q_sorted = sort(q,'descend');
 for i = 1:Ntn
-    cell_index = find(xy==Tn(i,1:2));
-    coords = v(c{cell_index(1)},:);
+    coords = v(cells{i},:);
+%     bigyval = find(coords(:,2) > bs_ext(4));
+%     smallyval = find(coords(:,2) < bs_ext(3));
+%     bigxval = find(coords(:,1) > bs_ext(2));
+%     smallxval = find(coords(:,1) < bs_ext(1));
+%     if any(bigyval)
+%         coords(bigyval,2)=bs_ext(4);
+%         v(c{cell_index(1)},:) = coords;
+%     end
+%     if any(smallyval)
+%         coords(smallyval,2)=bs_ext(3);
+%         v(c{cell_index(1)},:) = coords;
+%     end
+%     if any(bigxval)
+%         coords(bigxval,1)=bs_ext(2);
+%         v(c{cell_index(1)},:) = coords;
+%     end
+%     if any(smallxval)
+%         coords(smallxval,1)=bs_ext(1);
+%         v(c{cell_index(1)},:) = coords;
+%     end
     pgon = polyshape(coords(:,1),coords(:,2));
     pg = plot(pgon);
     q_here = q(Te(i));
-    q_sorted = sort(q,'descend');
     ind = find(q_sorted==q_here);
     ind = ind(1);
     pg.FaceColor = map(ind,:);
@@ -152,84 +184,12 @@ hold on
 plot(RootNode(1),RootNode(2),'r*');
 hold on
 axis(gca,'equal')
-axis(Domain)
-
+%axis([-5 5 -5 5])
 
 
 %%% Darcy flow %%%
-cells = zeros(Ntn,2);
-k = 1; % Permeability
-m = 1;
-for i = 1:size(c,1)
-    cell_index = find(xy==Tn(i,1:2));
-    coords = v(c{cell_index(1)},:);
-    cell_coords = v(c{cell_index(1)},:);
-    cells(i,1:2)=[mean(cell_coords(:,1)) mean(cell_coords(:,2))];
-    num_vertices = length(c{cell_index(1),:});
-    for j = 1:num_vertices
-        if j < num_vertices
-            pedgesloc=c{cell_index(1)}(j:j+1);
-        elseif j == length(c{cell_index(1),:})
-            pedgesloc=[c{cell_index(1)}(j) c{cell_index(1)}(1)];
-        end
-        if i > 1
-            existing_edge=ismember(pedges, pedgesloc, "rows")+ismember(flip(pedges,2), pedgesloc, "rows");
-        else 
-            existing_edge = 0;
-        end
-        if any(existing_edge)
-            edge_number=find(existing_edge==1);
-            p_con(i,edge_number)=-1;
-        else
-            pedges(m,:)=pedgesloc;
-            edge_number = m;
-            m = m+1;
-            p_con(i,edge_number)=1;
-        end
-    end
-                
-end
-
-sp_con = sparse(p_con);
-p_cell = p_all(Te);
-bc_edges = zeros(size(p_con,2),1);
-x1 = v(pedges(:,1),1);
-x2 = v(pedges(:,2),1);
-y1 = v(pedges(:,1),2);
-y2 = v(pedges(:,2),2);
-l_edge = sqrt((x1-x2).^2+(y1-y2).^2);
-d = zeros(size(p_con,2),1);
-for i = 1:size(p_con,2)
-    n_cells = find(p_con(:,i)~=0);    % neighbouring cells
-    if length(n_cells)==2
-        d(i) = sqrt((cells(n_cells(1),1)-cells(n_cells(2),1))^2+(cells(n_cells(1),2)-cells(n_cells(2),2))^2);
-    elseif length(n_cells) == 1
-            X1 = [v(pedges(i,1),1) v(pedges(i,1),2)];
-            X2 = [v(pedges(i,2),1) v(pedges(i,2),2)];
-            p = [cells(n_cells,1) cells(n_cells,2)];
-            D1 = norm(p-X1);
-            D2 = norm(X2-X1);
-            D3 = norm(p-X2);
-            theta = acosd((D1^2+D2^2-D3^2)/(2*D1*D2));
-            d_half = D1*sind(theta);
-            d(i) = d_half*2;
-            bc_edges(i)=1;
-    end
-end
-
-% LHS
-T = k*l_edge./d;
-con_trans = sp_con';
-B = zeros(size(con_trans));
-for i = 1:size(con_trans,1)
-    if bc_edges(i)==0
-        B(i,:)=con_trans(i,:)*T(i);
-    elseif bc_edges(i)==1
-    end
-end
-
-
-
+p_cell = TPFA(cells,v)
+IntensityMap(cells,v,p_cell)
 
 
 
