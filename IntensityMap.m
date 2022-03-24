@@ -1,7 +1,7 @@
-function IntensityMap(c,v,x)
+function IntensityMap(c,v,x,Name)
     x_sorted = sort(x,'descend');
     map = gray(length(x));
-    figure
+    figure('Name',Name)
     for i = 1:size(c,1)
         coords=v(c{i},:);
         pgon = polyshape(coords(:,1),coords(:,2));
