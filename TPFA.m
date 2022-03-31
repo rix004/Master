@@ -51,8 +51,7 @@ for i = 1:num_edges
             X1 = [vertices(pedges(i,1),1) vertices(pedges(i,1),2)];
             X2 = [vertices(pedges(i,2),1) vertices(pedges(i,2),2)];
             p = [cell_center(n_cells,1) cell_center(n_cells,2)];
-            d_half = DistanceToEdge(p,X1,X2);
-            d(i) = d_half;
+            d(i) = DistanceToEdge(p,X1,X2);
             bc_edges(i)=1;
     end
 end

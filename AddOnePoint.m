@@ -95,6 +95,7 @@ if size(Tree.edges,1) > 0
                 NewTree.edges = [Tree.edges;d1 k size(Tree.nodes,1)+1 Tree.edges(edge_nr,4)];
             end
         elseif size(check_edges,1) == 0
+            % The nearest node is a terminal node
             % Update tree
             NewTree.nodes = [Tree.nodes;x y Tree.nodes(end,3)+1];
             NewTree.edges = [Tree.edges;d1 k size(Tree.nodes,1)+1 Tree.TrunkRadius];

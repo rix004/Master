@@ -5,11 +5,11 @@ clear;
 
 k = @(x,y) 1;
 p_exact = @(x,y) x.*(x-1).*y.*(y-1);
-nx = 64;
+nx = 4;
 ny = nx;
 dx=1/(nx-1);
 dy=1/(ny-1);
-h = sqrt(dx^2+dy^2);
+h = sqrt(dx^2+dy^2)
 
 [vertices, cells]=GridGeneration(nx,ny);
 figure
@@ -47,3 +47,16 @@ axis([0 1 0 1]);
 error = p-p_exact(cell_center(:,1),cell_center(:,2));
 l2_error = sqrt(sum(error.^2))*sqrt(dx*dy)
 
+h_vect = [0.4714 0.2020 0.0943 0.0456 0.0224]';
+l2_vect = [0.0052 9.8575e-04 2.1690e-04 5.0907e-05 1.2333e-05]';
+
+figure
+loglog(h_vect,l2_vect,'*-','LineWidth',2)
+hold on
+loglog([0.25/2 0.25/4 0.25/8 0.25/16 0.25/32],[0.05 0.025/2 0.025/8 0.025/32 0.025/(32*4)],'*-','LineWidth',2)
+hold on
+xlabel('1/n_{cells}','FontSize',15)
+ylabel('L2-error','FontSize',15)
+lgd = legend('Convergence on Voronoi grid','2nd order reference');
+lgd.FontSize=(14);
+legend('Location','northwest')
