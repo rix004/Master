@@ -6,8 +6,8 @@ function[tree]=RRT_Tree(tree,D,Np)
 
 % edges: Matrix with all the edges in the tree. 
 % Column 1 = length
-% Column 2 = from-node
-% Column 3 = to-node
+% Column 2 = from-node (parent)
+% Column 3 = to-node   (child)
 % Column 4 = radius
 
 

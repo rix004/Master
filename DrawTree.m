@@ -7,7 +7,8 @@ for i = 1:size(Tree.edges,1)
     y2 = Tree.nodes(Tree.edges(i,3),2);
     line([x1 x2],[y1,y2],'LineWidth',Tree.edges(i,4)*linewidth,'Color',color)
     hold on
-    axis([min(Tree.nodes(:,1)) max(Tree.nodes(:,1)) min(Tree.nodes(:,2)) max(Tree.nodes(:,2))])
+    %plot(Tree.nodes(:,1),Tree.nodes(:,2),'.','MarkerSize',10,'Color',color)
+    axis([min(Tree.nodes(:,1)) max(Tree.nodes(:,1)) min(Tree.nodes(:,2))-0.5 max(Tree.nodes(:,2))+0.5])
 end
 axis equal
 end

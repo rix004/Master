@@ -1,17 +1,17 @@
 % TEST TPFA
 close all
-%clc;
+clc;
 clear;
 
 k = @(x,y) 1;
 p_exact = @(x,y) x.*(x-1).*y.*(y-1);
-nx = 4;
+nx = 8;
 ny = nx;
 dx=1/(nx-1);
 dy=1/(ny-1);
 h = sqrt(dx^2+dy^2)
 
-[vertices, cells]=GridGeneration(nx,ny);
+[vertices, cells]=GridGeneration(nx,ny,[0 1 0 1]);
 figure
 for i = 1:size(cells,1)
         coords=vertices(cells{i},:);
@@ -21,7 +21,7 @@ for i = 1:size(cells,1)
 end
 
 f = @(x,y) 2.*y -2.*y^2 +2.*x -2.*x.^2; 
-[LHS,RHS,cell_center,poly_edges] = TPFA(cells,vertices,f,k,1,0);
+[Grad_D,LHS,D_bvs,RHS,cell_center,cell_edges,cell_area,boundary_cells] = TPFA(cells,vertices,f,k,1,0);
 p = LHS\RHS;
 
 X1 = reshape(cell_center(:,1),nx-1,ny-1);

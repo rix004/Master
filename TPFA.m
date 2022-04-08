@@ -1,7 +1,7 @@
 % Two point flux approximation.
 % Dirichlet BC: BC_type = 1.
 % Neumann BC: BC_type = 2.
-function[LHS,RHS,cell_center,pedges,cell_area] = TPFA(cells,vertices,f,k,BC_type,bc)
+function[A,LHS,bound_vals,RHS,cell_center,pedges,cell_area,boundary_points] = TPFA(cells,vertices,f,k,BC_type,bc)
 cell_center = zeros(size(cells,1),2);
 m = 1;
 for i = 1:size(cells,1)
@@ -43,16 +43,22 @@ l_edge = sqrt((x1-x2).^2+(y1-y2).^2);
 d = zeros(num_edges,1);
 
 Div = sparse(p_con);
+bound_count = 1;
 for i = 1:num_edges
     n_cells = find(p_con(:,i)~=0);    % neighbouring cells
     if length(n_cells)==2
         d(i) = sqrt((cell_center(n_cells(1),1)-cell_center(n_cells(2),1))^2+(cell_center(n_cells(1),2)-cell_center(n_cells(2),2))^2);
+        disp('to naboer')
     elseif length(n_cells) == 1
             X1 = [vertices(pedges(i,1),1) vertices(pedges(i,1),2)];
             X2 = [vertices(pedges(i,2),1) vertices(pedges(i,2),2)];
             p = [cell_center(n_cells,1) cell_center(n_cells,2)];
+            disp('en nabo')
             d(i) = DistanceToEdge(p,X1,X2);
+            d(i)
             bc_edges(i)=1;
+            boundary_points(bound_count,1:3)=[mean([X1(1),X2(1)]) mean([X1(2),X2(2)]) i];
+            bound_count = bound_count+1;
     end
 end
 
@@ -64,7 +70,8 @@ end
 boundary_cells=unique(boundary_cells);
 
 % Construct matrices
-T = k(cell_center(:,1),cell_center(:,2)).*l_edge./d;
+d
+T = k(cell_center(:,1),cell_center(:,2)).*l_edge./d
 flux_boundary = zeros(num_edges);
 for i = 1:num_edges
     A(:,i)=Div(:,i)*T(i);
@@ -90,6 +97,7 @@ b = b';
 % Boundary values
 bv = zeros(num_edges,1);
 bv(bc_edges==1)=bc;
+bound_vals = flux_boundary*bv;
 RHS = Div*flux_boundary*bv + b;
 end
 
