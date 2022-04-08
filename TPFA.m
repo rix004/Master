@@ -48,14 +48,11 @@ for i = 1:num_edges
     n_cells = find(p_con(:,i)~=0);    % neighbouring cells
     if length(n_cells)==2
         d(i) = sqrt((cell_center(n_cells(1),1)-cell_center(n_cells(2),1))^2+(cell_center(n_cells(1),2)-cell_center(n_cells(2),2))^2);
-        disp('to naboer')
     elseif length(n_cells) == 1
             X1 = [vertices(pedges(i,1),1) vertices(pedges(i,1),2)];
             X2 = [vertices(pedges(i,2),1) vertices(pedges(i,2),2)];
             p = [cell_center(n_cells,1) cell_center(n_cells,2)];
-            disp('en nabo')
             d(i) = DistanceToEdge(p,X1,X2);
-            d(i)
             bc_edges(i)=1;
             boundary_points(bound_count,1:3)=[mean([X1(1),X2(1)]) mean([X1(2),X2(2)]) i];
             bound_count = bound_count+1;
@@ -70,8 +67,7 @@ end
 boundary_cells=unique(boundary_cells);
 
 % Construct matrices
-d
-T = k(cell_center(:,1),cell_center(:,2)).*l_edge./d
+T = k(cell_center(:,1),cell_center(:,2)).*l_edge./d;
 flux_boundary = zeros(num_edges);
 for i = 1:num_edges
     A(:,i)=Div(:,i)*T(i);
