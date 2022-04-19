@@ -40,9 +40,5 @@
 %     p_sum(i) = p_darcy(i)-p_term+p_peaceman;
 % end
 
-% Check that the flux out of the domain (over dOmega) is the same as the
-% flux coming into the domain and the flux into the network
-% sum(Grad_D(boundary_cells(:,3),:)*p_darcy-D_bvs(boundary_cells(:,3)))
-% sum(darcy_source)
-% q_network(1)
+
                 

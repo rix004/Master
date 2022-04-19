@@ -85,7 +85,6 @@ LHS = Div*A;
 % RHS
 % Source term
 for i = 1:size(cell_center,1)
-    %b(i) = f(i);
     b(i) = f(cell_center(i,1),cell_center(i,2))*cell_area(i);
 end
 b = b';

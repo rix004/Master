@@ -26,11 +26,12 @@ elseif strcmp(t, 'Combinated')
 
     % Define the combinated tree
     Tree.nodes=[DetTree.nodes;RandomTree.nodes];
-    Tree.nodes = unique(Tree.nodes(:,1:2),"rows",'stable');
+    Tree.nodes = unique(Tree.nodes,"rows",'stable');
     Tree.edges(:,1)=[DetTree.edges(:,1);RandomTree.edges(:,1)];
     for i = 1:size(RandomTree.edges,1)
         NewEdgeNr1=find(ismember(Tree.nodes(:,1:2),RandomTree.nodes(RandomTree.edges(i,2),1:2),"rows"));
         NewEdgeNr2=find(ismember(Tree.nodes(:,1:2),RandomTree.nodes(RandomTree.edges(i,3),1:2),"rows"));
+        NewEdgeNr1
         RandomTree.edges(i,2) = NewEdgeNr1;
         RandomTree.edges(i,3) = NewEdgeNr2;
     end

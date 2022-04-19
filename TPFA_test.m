@@ -5,7 +5,7 @@ clear;
 
 k = @(x,y) 1;
 p_exact = @(x,y) x.*(x-1).*y.*(y-1);
-nx = 8;
+nx = 40;
 ny = nx;
 dx=1/(nx-1);
 dy=1/(ny-1);
@@ -34,13 +34,15 @@ subplot(1,2,1)
 surf(X1,X2,P_exact);
 xlabel('x','FontSize',15)
 ylabel('y','FontSize',15)
+zlabel('u','FontSize',15)
 title('Analytic solution','FontSize',18)
 axis([0 1 0 1]);
 subplot(1,2,2)
 surf(X1,X2,P-P_exact);
 xlabel('x','FontSize',15)
 ylabel('y','FontSize',15)
-title('Error','FontSize',18)
+zlabel('error','FontSize',15)
+title('u_{analytic} - u_h','FontSize',18)
 set(gcf,'Position',[100 100 1200 500]);
 axis([0 1 0 1]);
 
@@ -53,10 +55,10 @@ l2_vect = [0.0052 9.8575e-04 2.1690e-04 5.0907e-05 1.2333e-05]';
 figure
 loglog(h_vect,l2_vect,'*-','LineWidth',2)
 hold on
-loglog([0.25/2 0.25/4 0.25/8 0.25/16 0.25/32],[0.05 0.025/2 0.025/8 0.025/32 0.025/(32*4)],'*-','LineWidth',2)
+loglog([0.25/2 0.25/4 0.25/8 0.25/16 0.25/32],[0.05 0.025/2 0.025/8 0.025/32 0.025/(32*4)],'-','LineWidth',2)
 hold on
-xlabel('1/n_{cells}','FontSize',15)
-ylabel('L2-error','FontSize',15)
-lgd = legend('Convergence on Voronoi grid','2nd order reference');
+xlabel('h','FontSize',15)
+ylabel('Error','FontSize',15)
+lgd = legend('Convergence on square grid','2nd order reference');
 lgd.FontSize=(14);
 legend('Location','northwest')
