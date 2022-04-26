@@ -1,7 +1,7 @@
 % Two point flux approximation.
 % Dirichlet BC: BC_type = 1.
 % Neumann BC: BC_type = 2.
-function[A,LHS,bound_vals,RHS,cell_center,pedges,cell_area,boundary_points] = TPFA(cells,vertices,f,k,BC_type,bc)
+function[A,LHS,bound_vals,RHS,cell_center,pedges,cell_area,boundary_points,bv_out] = TPFA(cells,vertices,f,K_D,BC_type,bc,r_0)
 cell_center = zeros(size(cells,1),2);
 m = 1;
 for i = 1:size(cells,1)
@@ -67,7 +67,7 @@ end
 boundary_cells=unique(boundary_cells);
 
 % Construct matrices
-T = k(cell_center(:,1),cell_center(:,2)).*l_edge./d;
+T = K_D(cell_center(:,1),cell_center(:,2)).*l_edge./d;
 flux_boundary = zeros(num_edges);
 for i = 1:num_edges
     A(:,i)=Div(:,i)*T(i);
@@ -92,7 +92,11 @@ b = b';
 % Boundary values
 bv = zeros(num_edges,1);
 bv(bc_edges==1)=bc;
+% Test with Peaceman
+% r = sqrt((0-boundary_points(:,1)).^2+(0-boundary_points(:,2)).^2);
+% bv(bc_edges==1)=-bc/(2*pi)*log(r./r_0);
 bound_vals = flux_boundary*bv;
 RHS = Div*flux_boundary*bv + b;
+bv_out = bv(bc_edges==1);
 end
 

@@ -1,6 +1,7 @@
 %clc;
 clear;
 close all
+function[l2_error,h]=main(Np)
 RootNode = [0 -1];
 
 % Deterministic tree data
@@ -33,6 +34,8 @@ term_indexes = find(Term_nodes==1);
 %%% Set boundary values %%%
 BCs = {'Dirichlet','Neumann'};
 Bv_darcy = -1;
+Neu_network = 5;
+Dir_network = 1;
 
 %%% Voronoi diagram %%%
 [cells, vertices] = VoronoiDiagram(Tn,[D(1) D(1) D(2) D(2) D(1);D(3) D(4) D(4) D(3) D(3)]');
@@ -44,22 +47,21 @@ Ntn = size(Tn,1);                                 % Terminal nodes
 mu = 3E-6;                                        % viscosity (Ns/mm^2)
 k = 3E-6;                                         % permeability (mm^2)
 K_N(:,1) = pi*edges(:,4).^4./(8*mu*edges(:,1));   % Conductance
-%K_N(Te(1:end-1))=0;
+K_N(Te(1:end-1))=0;
 f = @(x,y) 0;
 K_D = @(x,y) k/mu;
 
 % Construct matrices
-[Grad_D,LHS,D_bvs,RHS,cell_center,cell_edges,cell_area,boundary_cells] = TPFA(cells,vertices,f,K_D,1,Bv_darcy);
+[Grad_D,LHS,D_bvs,RHS,cell_center,cell_edges,cell_area,boundary_cells,bv] = TPFA(cells,vertices,f,K_D,1,Neu_network*mu/k,edges(Tn(end,3),4));
 connections = sparse([1:Ne, 1:Ne]', [edges(:,2); edges(:,3)], [-ones(Ne,1);ones(Ne,1)]);
 
 I = spdiags(ones(Ntn,1),0,Ntn,Ntn);
 
-flag.case = BCs{1};
+flag.case = BCs{2};
 if strcmp(flag.case, 'Dirichlet')
     Bc_nodes = [1;zeros(Nn-1,1)];
     Term_edges = zeros(Ne,1);
     Term_edges(Te)=1;
-    Dir_network = 1;
     connections_trimmed = connections(:,(Term_nodes+Bc_nodes)==0);
 
     P = zeros(Ntn,Ne);
@@ -68,11 +70,6 @@ if strcmp(flag.case, 'Dirichlet')
     end
     P = sparse(P);
 
-        I_term = zeros(Ntn,Nn);
-    for i = 1:size(I_term,1)
-        I_term(i,term_indexes(i))=1;
-    end
-    
     PM_vect = zeros(Ntn,1);
     for i = 1:size(PM_vect,1)
         PM_vect(i)=mu/(2*k*pi)*log(sqrt(cell_area(i))*0.2/edges(Tn(i,3),4));
@@ -115,7 +112,6 @@ elseif strcmp(flag.case, 'Neumann')
     Bc_edges = [1;zeros(Ne-1,1)];
     connections_trimmed = connections(Bc_edges==0,(Term_nodes+[1;zeros(Nn-1,1)])==0);
     connections_trimmed1 = connections(:,Term_nodes==0);
-    Neu_network = 5.7237;
     
     I_term = zeros(Ntn,Nn);
     for i = 1:size(I_term,1)
@@ -164,93 +160,35 @@ elseif strcmp(flag.case, 'Neumann')
 
 
 figure('Name','Pressure plot')
-for i = 1:Ne
-    x = [nodes(edges(i,2),1) nodes(edges(i,3),1)];
-    y = [nodes(edges(i,2),2) nodes(edges(i,3),2)];
-    pressure = [p_network(edges(i,2)) p_network(edges(i,3))];
-    plot3(x,y,pressure,'.-','Color',[0 0 0],'LineWidth',edges(i,4)*10)
-    hold on
-    grid on
-end
-p_map = autumn(Nn+Ntn*3);
-network_map = p_map(Ntn*2:end,:);
-for i = 1:Nn
-    x = nodes(i,1);
-    y = nodes(i,2);
-    pressure = p_network(i);
-    p_sorted = sort(p_network);
-    ind = find(p_sorted==pressure);
-    ind = ind(1);
-    plot3(x,y,pressure,'.','Color',network_map(ind,:),'MarkerSize',20);
-    hold on
-end
-zlabel('Node pressure')
 
-darcy_map = p_map(1:3*Ntn,:);
 
 [xq,yq]=meshgrid(D(1):0.05:D(2), D(3):0.05:D(4));
-p_points = [Tn(:,1:2);boundary_cells(:,1:2);[D(1) D(3)];[D(1) D(4)];[D(2) D(3)]; [D(2) D(4)]];
-p_values = [p_darcy;Bv_darcy*ones(size(boundary_cells,1)+4,1)];
+p_points = [Tn(:,1:2);boundary_cells(:,1:2)];
+p_values = [p_darcy;bv];
 vq = griddata(p_points(:,1),p_points(:,2),p_values,xq,yq);
 surf(xq,yq,vq)
-colormap(darcy_map)
 
-% Check that the flux out of the domain (over dOmega) is the same as the
-% flux coming into the domain and the flux into the network
-disp('Flux out of domain, into domain and into network (should be the same):')
-sum(Grad_D(boundary_cells(:,3),:)*p_darcy-D_bvs(boundary_cells(:,3)))
-sum(q_darcy)
-q_network(1)
+p_exact = @(x,y) -Neu_network*mu/(2*pi*k)*log(sqrt(x.^2+y.^2)/edges(Tn(i,3),4));
+error = p_darcy-p_exact(cell_center(:,1),cell_center(:,2));
+l2_error = 0;
+for i =1:length(error)
+    l2_error = l2_error + error(i)^2*cell_area(i);
+end
 
-% Check that the sum of fluxes in and out of an interior node equals 0.
-int_nodes = find((Term_nodes+[1;zeros(Nn-1,1)])==0);
-total_flux = zeros(Nin,1);
-for i =1:length(int_nodes)
-    edge_in=find(edges(:,3)==int_nodes(i));
-    edge_out=find(edges(:,2)==int_nodes(i));
-    flux_in = q_network(edge_in);
-    flux_out = q_network(edge_out);
-    total_flux(i) = sum(flux_in)-sum(flux_out);
-end
-disp('Sum flux in and out of interior nodes (should be zero):')
-sum(total_flux)
-% % Check that terminal node corresponds to darcy cell
-term_nodes = find(Term_nodes==1);
-for i = 1:Ntn
-    coords = vertices(cells{i},:);
-    PointInside(i) = inpolygon(nodes(term_nodes(i),1),nodes(term_nodes(i),2),coords(:,1),coords(:,2));
-end
-% 
-% % Check that the flux into terminal nodes equals the flux into the Darcy domain
-flux_sum = zeros(Ntn,1);
-for i = 1:Ntn
-    edge_in=find(edges(:,3)==term_nodes(i));
-    flux_in=q_network(edge_in);
-    darcy_flux = q_darcy(i);
-    flux_sum(i) = flux_in-darcy_flux;
-end
-disp('Flux into terminal nodes-flux into Darcy domain (should be zero):')
-sum(flux_sum)
+l2_error
+h=sqrt(4/size(cells,1))
 
-% % Chech that the pressure in terminal nodes equals the pressure in the
-% % Darcy-cell + Peaceman
-p_sum = zeros(Ntn,1);
-for i = 1:Ntn
-    p_term = p_network(term_nodes(i));
-    edge_in=find(edges(:,3)==term_nodes(i));
-    flux_in=q_network(edge_in);
-    p_peaceman = flux_in*mu/(2*pi*k)*log(0.2*sqrt(cell_area(i))/edges(edge_in,4));
-    p_sum(i) = p_darcy(i)-p_term+p_peaceman;
+figure
+loglog([0.25 0.25/2 0.25/4 0.25/8],[0.1 0.05 0.025 0.025/2],'-','LineWidth',2.5,'Color','r')
+hold on
+loglog([0.5547 0.3592 0.2673 0.2 0.1414 0.0979 0.0695],[0.1997 0.0317 0.0125 0.0150 0.0268 0.0036 0.0013],'-.','LineWidth',2,'Color','b')
+hold on
+
 end
-disp('p_darcy-p_term+p_peaceman (should be zero):')
-sum(p_sum)
-                
-%% Check that Poiseuilles law is also valid in terminal edges
-disp('Poiseuilles law in terminal edge (should be zero)')
-for i = 1:length(Te)
-    sum_PL(i) = K_N(Te(i))*(p_network(edges(Te(i),2))-p_network(edges(Te(i),3)))-q_network(Te(i));
-end
-sum(sum_PL)
+
+
+
+
 
 
 

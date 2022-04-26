@@ -60,7 +60,7 @@ for iter1 = 1:numb_tests
         k = @(x,y) 1;
         p_exact = @(x,y) x.*(x-1).*y.*(y-1);
         
-        [Grad_D,LHS,D_bvs,RHS,cell_center,cell_edges,cell_area,boundary_cells] = TPFA(cells,vertices,f,k,1,0);
+        [Grad_D,LHS,D_bvs,RHS,cell_center,cell_edges,cell_area,boundary_cells] = TPFA(cells,vertices,f,k,1,0,0);
         p_num = LHS\RHS;
         
         error = p_num-p_exact(cell_center(:,1),cell_center(:,2));
@@ -74,13 +74,12 @@ for iter1 = 1:numb_tests
     end
 end
 
-% h_vect = [sqrt(0.25) sqrt(0.1111) sqrt(0.0625) sqrt(0.0333) sqrt(0.0189) sqrt(0.0092) sqrt(0.0045)]';
-% l2_vect = [0.0149 0.0117 0.0068 0.0047 0.0024 0.0025 0.0018]';
-% 
-
 figure
+loglog([0.5 0.25 0.25/2 0.25/4 0.25/8],[0.02 0.01 0.005 0.0025 0.0025/2],'-','LineWidth',3,'Color','r')
+hold on
+
 for iter3 = 1:size(L2_error,1)
-    loglog(h(iter3,:),L2_error(iter3,:),'-','LineWidth',1)
+    loglog(h(iter3,:),L2_error(iter3,:),'-.','LineWidth',1.5,'Color',[0    0.5686    0.7157])
     hold on
 end
 
@@ -92,14 +91,11 @@ for iter4 = 1:size(L2_error,2)
 end
 
 std_dev = std(L2_error);
-errorbar(mean_h,mean_vect,std_dev,'x-','LineWidth',3,'Color',[0 0 0])
+errorbar(mean_h,mean_vect,std_dev,'x-','LineWidth',2.5,'Color',[0    0.1882    0.9059])
 hold on
-% loglog(mean_h,mean_vect,'-','LineWidth',2.5,'Color',[0 0 0])
-% hold on
-loglog([0.25 0.25/2 0.25/4 0.25/8 0.25/16],[0.1 0.05 0.025 0.025/2 0.025/4],'-','LineWidth',2)
-hold on
-xlabel('sqrt(1/n_{cells})','FontSize',15)
-ylabel('L2-error','FontSize',15)
-% lgd = legend('1st order reference');
-% lgd.FontSize=(14);
-% legend('Location','northwest')
+
+xlabel('h','FontSize',16)
+ylabel('Error','FontSize',16)
+lgd = legend('1st order reference','','','','','','','','','','Error','Average error');
+lgd.FontSize=(14);
+legend('Location','northwest')

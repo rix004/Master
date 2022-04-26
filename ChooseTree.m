@@ -18,11 +18,11 @@ elseif strcmp(t, 'Combinated')
     RandomTree.nodes = Tn;
     RandomTree.edges = [];
     RandomTree.TrunkRadius=DetTree.edges(end,4)*RandomTree.RadiusRate;
-    RandomTree = OneRandomTree(RandomTree,Domain,Np);
+    RandomTree = RRT_Tree(RandomTree,Domain,Np);
 
     % Draw trees
-    DrawTree(DetTree,50,[0.8500, 0.3250, 0.0980]);
-    DrawTree(RandomTree,1,[0 0.4470 0.7410]);
+   % DrawTree(DetTree,50,[0.8500, 0.3250, 0.0980]);
+   % DrawTree(RandomTree,1,[0 0.4470 0.7410]);
 
     % Define the combinated tree
     Tree.nodes=[DetTree.nodes;RandomTree.nodes];
