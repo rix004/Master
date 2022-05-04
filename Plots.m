@@ -184,3 +184,11 @@ legend('Location','northwest')
 % plot(cell_center(:,1),cell_center(:,2),'.','MarkerSize',7,'Color',newmap(end,:));
 % hold on
 % axis(D)
+
+figure('Name','Pressure plot')
+[xq,yq]=meshgrid(D(1):0.05:D(2), D(3):0.05:D(4));
+p_points = [cell_center(ok_cells,1:2);boundary_cells(:,1:2)];
+p_values = [p_darcy(ok_cells);bv];
+pEx_values = [p_exact(cell_center(ok_cells,1),cell_center(ok_cells,2));bv];
+vq = griddata(p_points(:,1),p_points(:,2),p_values-pEx_values,xq,yq);
+surf(xq,yq,vq)

@@ -21,8 +21,9 @@ elseif strcmp(t, 'Combinated')
     RandomTree = RRT_Tree(RandomTree,Domain,Np);
 
     % Draw trees
-   % DrawTree(DetTree,50,[0.8500, 0.3250, 0.0980]);
-   % DrawTree(RandomTree,1,[0 0.4470 0.7410]);
+    figure(1)
+    DrawTree(DetTree,50,[0.8500, 0.3250, 0.0980]);
+    DrawTree(RandomTree,1,[0 0.4470 0.7410]);
 
     % Define the combinated tree
     Tree.nodes=[DetTree.nodes;RandomTree.nodes];

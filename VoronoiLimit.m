@@ -959,7 +959,7 @@ try
                 end
             end
             
-            figure
+            figure(3)
             set(gcf,'position',get(0,'screensize'),'color','w')
             set(gca,'box','on')
             hold on

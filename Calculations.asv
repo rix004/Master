@@ -16,74 +16,80 @@ DT.LengthRate = 0.65;
 % Random tree data
 RandomTree.TrunkRadius = DT.TrunkRadius*DT.RadiusRate^DT.Levels;
 RandomTree.RadiusRate = 0.5;
-Np = 400;
+Np = 100;
 D = [-1 1 -1 1];
 
+% Make tree
 trees = {'Deterministic','Random','Combinated','Half Deterministic'};
 flag.case = trees{3};
 Tree = ChooseTree(flag.case,RandomTree,DT,D,Np);
 nodes = Tree.nodes; edges = Tree.edges;
-Ne = length(edges);
-Nn = length(nodes);
+nodes = FindLevels(nodes,edges);
 
 % Find terminal nodes
-[Tn,Te,Term_nodes]=FindTerminals(nodes,edges);
-term_indexes = find(Term_nodes==1);
-
-%%% Set boundary values %%%
-BCs = {'Dirichlet','Neumann'};
-Bv_darcy = -1;
-Neu_network = 5;
-Dir_network = 1;
+[MicroTN,MicroTe,TermNodes]=FindTerminals(nodes,edges);
+MicroTermIndexes = find(TermNodes==1);
+MacroTermIndexes = find(nodes(:,3)==DT.Levels);
 
 %%% Voronoi diagram %%%
-[cells, vertices] = VoronoiDiagram(Tn,[D(1) D(1) D(2) D(2) D(1);D(3) D(4) D(4) D(3) D(3)]');
+[cells, vertices] = VoronoiDiagram(MicroTN,[D(1) D(1) D(2) D(2) D(1);D(3) D(4) D(4) D(3) D(3)]');
 
-%%% Solve coupled system %%%
-Nin = sum(1-Term_nodes)-1;                        % Interior nodes
-Npn = sum(1-Term_nodes);                          % Parent nodes
-Ntn = size(Tn,1);                                 % Terminal nodes
+Ne = length(edges);
+Nn = length(nodes);
+Nin = sum(1-TermNodes)-1;                        % Interior nodes
+Npn = sum(1-TermNodes);                          % Parent nodes
+Ntn = size(MicroTN,1);                            % Terminal nodes (micro)
 mu = 3E-6;                                        % viscosity (Ns/mm^2)
 k = 3E-6;                                         % permeability (mm^2)
 K_N(:,1) = pi*edges(:,4).^4./(8*mu*edges(:,1));   % Conductance
-K_N(Te(1:end-1))=0;
+%K_N(Te(1:end-1))=0;
 f = @(x,y) 0;
 K_D = @(x,y) k/mu;
 
+%%% Set boundary values %%%
+BCs = {'Dirichlet','Neumann'};
+Neu_network = 5;
+Dir_network = 1;
+Bv_darcy = -1;
+
+
+
+%%% Solve coupled system %%%
+
 % Construct matrices
-[Grad_D,LHS,D_bvs,RHS,cell_center,cell_edges,cell_area,boundary_cells,bv] = TPFA(cells,vertices,f,K_D,1,Neu_network*mu/k,edges(Tn(end,3),4));
+[Grad_D,LHS,D_bvs,RHS,cell_center,cell_edges,cell_area,boundary_cells,bv] = TPFA(cells,vertices,f,K_D,1,Bv_darcy,edges(MicroTN(end,3),4));
 connections = sparse([1:Ne, 1:Ne]', [edges(:,2); edges(:,3)], [-ones(Ne,1);ones(Ne,1)]);
 
 I = spdiags(ones(Ntn,1),0,Ntn,Ntn);
 
-flag.case = BCs{2};
+flag.case = BCs{1};
 if strcmp(flag.case, 'Dirichlet')
     Bc_nodes = [1;zeros(Nn-1,1)];
     Term_edges = zeros(Ne,1);
-    Term_edges(Te)=1;
-    connections_trimmed = connections(:,(Term_nodes+Bc_nodes)==0);
+    Term_edges(MicroTe)=1;
+    connections_trimmed = connections(:,(TermNodes+Bc_nodes)==0);
 
     P = zeros(Ntn,Ne);
     for i = 1:size(P,1)
-        P(i,Tn(i,3))=mu/(2*k*pi)*log(sqrt(cell_area(i))*0.2/edges(Tn(i,3),4));
+        P(i,MicroTN(i,3))=mu/(2*k*pi)*log(sqrt(cell_area(i))*0.2/edges(MicroTN(i,3),4));
     end
     P = sparse(P);
 
     PM_vect = zeros(Ntn,1);
     for i = 1:size(PM_vect,1)
-        PM_vect(i)=mu/(2*k*pi)*log(sqrt(cell_area(i))*0.2/edges(Tn(i,3),4));
+        PM_vect(i)=mu/(2*k*pi)*log(sqrt(cell_area(i))*0.2/edges(MicroTN(i,3),4));
     end
     PM = spdiags(PM_vect,0,Ntn,Ntn);
 
     C = zeros(Ntn,Ne);
     for i = 1:size(C,1)
-        C(i,Tn(i,3))=1;
+        C(i,MicroTN(i,3))=1;
     end
     C = sparse(C);
 
     I2 = zeros(Ne,Ntn);
     for i = 1:size(I2,2)
-        I2(Te(i),i)=1;
+        I2(MicroTe(i),i)=1;
     end
 
     A = [LHS, sparse(Ntn,Ne), sparse(Ntn,Nin), sparse(Ntn,Ntn),-I;
@@ -102,36 +108,36 @@ if strcmp(flag.case, 'Dirichlet')
     p_tn = SOL(Ntn+Ne+Nin+1:Ntn+Ne+Nin+Ntn);
     q_darcy = SOL(Ntn+Ne+Nin+Ntn+1:end);
 
-    int_indexes = find(Bc_nodes+Term_nodes==0);
+    int_indexes = find(Bc_nodes+TermNodes==0);
     p_network = Dir_network*Bc_nodes;
     p_network(int_indexes) = p_int;
-    p_network(term_indexes) = p_tn;
+    p_network(MicroTermIndexes) = p_tn;
 
 elseif strcmp(flag.case, 'Neumann')
     Bc_edges = [1;zeros(Ne-1,1)];
-    connections_trimmed = connections(Bc_edges==0,(Term_nodes+[1;zeros(Nn-1,1)])==0);
-    connections_trimmed1 = connections(:,Term_nodes==0);
+    connections_trimmed = connections(Bc_edges==0,(TermNodes+[1;zeros(Nn-1,1)])==0);
+    connections_trimmed1 = connections(:,TermNodes==0);
     
     I_term = zeros(Ntn,Nn);
     for i = 1:size(I_term,1)
-        I_term(i,term_indexes(i))=1;
+        I_term(i,MicroTermIndexes(i))=1;
     end
 
     P = zeros(Ntn,Ne-1);
     for i = 1:size(P,1)
-        P(i,Tn(i,3)-1)=mu/(2*k*pi)*log(sqrt(cell_area(i))*0.2/edges(Tn(i,3),4));
+        P(i,MicroTN(i,3)-1)=mu/(2*k*pi)*log(sqrt(cell_area(i))*0.2/edges(MicroTN(i,3),4));
     end
     P = sparse(P);
 
     PM_vect = zeros(Ntn,1);
     for i = 1:size(PM_vect,1)
-        PM_vect(i)=mu/(2*k*pi)*log(sqrt(cell_area(i))*0.2/edges(Tn(i,3),4));
+        PM_vect(i)=mu/(2*k*pi)*log(sqrt(cell_area(i))*0.2/edges(MicroTN(i,3),4));
     end
     PM = spdiags(PM_vect,0,Ntn,Ntn);
     
     C= zeros(Ntn,Ne-1);
     for i = 1:size(C,1)
-        C(i,Tn(i,3)-1)=1;
+        C(i,MicroTN(i,3)-1)=1;
     end
     C = sparse(C);
 
@@ -155,59 +161,35 @@ elseif strcmp(flag.case, 'Neumann')
     q_darcy = SOL(Ntn+Ne+Nin+Ntn+1:end);
 
     p_network = [p_pn;p_tn];
-    end
-
-
-
-
-p_exact = @(x,y) -Neu_network*mu/(2*pi*k)*log(sqrt(x.^2+y.^2)/edges(Tn(i,3),4));
-epsilon = 0.1;
-distToOrigin = sqrt(cell_center(:,1).^2+(cell_center(:,2).^2));
-ok_cells = find(distToOrigin>epsilon);
-notok_cell = find(distToOrigin<epsilon);
-error = p_darcy(ok_cells)-p_exact(cell_center(ok_cells,1),cell_center(ok_cells,2));
-l2_error = 0;
-for i =1:length(error)
-    l2_error = l2_error + error(i)^2*cell_area(i);
 end
-sqrt(l2_error)
-h=sqrt(4/size(cells,1))
+
+K_T = findKT(edges,cells,MicroTermIndexes,MacroTermIndexes,q_network,p_network,p_darcy);
 
 figure
-plot(cell_center(ok_cells,1),cell_center(ok_cells,2),'.')
+for i = 1:length(MacroTermIndexes)
+a = num2str(i);
+b = 'Macro terminal ';
+subplot(2,length(MacroTermIndexes)/2,i)
+IntensityMap(cells,vertices,K_T(:,i),[b a])
+plot(nodes(MacroTermIndexes(i),1),nodes(MacroTermIndexes(i),2),'r*')
 hold on
-c=scircle1(0,0,epsilon);
-plot(c(:,1),c(:,2),'-','LineWidth',0.4,'Color','black');
-hold on
-axis equal 
+title([b a])
+axis(D)
+end
 
-figure('Name','Pressure plot')
-[xq,yq]=meshgrid(D(1):0.05:D(2), D(3):0.05:D(4));
-p_points = [cell_center(ok_cells,1:2);boundary_cells(:,1:2)];
-p_values = [p_darcy(ok_cells);bv];
-pEx_values = [p_exact(cell_center(ok_cells,1),cell_center(ok_cells,2));bv];
-vq = griddata(p_points(:,1),p_points(:,2),p_values-pEx_values,xq,yq);
-surf(xq,yq,vq)
 
 figure
-loglog([0.25 0.25/2 0.25/4 0.25/8],[0.1 0.05 0.025 0.025/2],'-','LineWidth',2.5,'Color','r')
+for i = 1:length(MacroTermIndexes)
+a = num2str(i);
+b = 'I_{a}';
+subplot(2,length(MacroTermIndexes)/2,i)
+ChildCells=find(K_T(:,i)>0);
+r = sqrt((cell_center(ChildCells,1)-nodes(MacroTermIndexes(i),1)).^2+(cell_center(ChildCells,2)-nodes(MacroTermIndexes(i),2)).^2);
+loglog(r,K_T(K_T(:,i)>0,i),'.','MarkerSize',10)
+xlabel('K^{T}_{I}')
+ylabel('|x-x_{I}|')
 hold on
-loglog([0.2481 0.1684 0.1262 0.0875 0.0627,[0.1001 0.1056 0.0667 0.0310 0.0292 0.0219],'-','LineWidth',2.5,'Color','r')
-hold on
-loglog([0.2408 0.1747 0.1262 0.0877 0.0618 0.0439 0.0311],[0.0610 0.0391 0.0462 0.0219 0.0188 0.0123 0.0080],'-.','Color','black','LineWidth',2.5)
-hold on
-loglog([0.2408 0.1747 0.1262 0.0877 0.0618 0.0439 0.0310],[0.0656 0.081 0.0495 0.0586 0.0356 0.0245 0.0164],'-.','Color','green','LineWidth',2.5)
-hold on
-loglog([0.2408 0.1747 0.1262 0.0877 0.0618 0.0439 0.0311],[0.1136 0.0576 0.0864 0.0597 0.0413 0.0218 0.0170],'-.','Color','green','LineWidth',2.5)
+title(b)
 
-
-
-xlabel('(A_{Domain}/n_{cells})^{1/2}','FontSize',18)
-ylabel('Error','FontSize',17)
-lgd = legend('1st order reference','ε = 0.5',' ','ε = 0.1');
-lgd.FontSize=(14);
-legend('Location','northwest')
-
-
-
+end
 

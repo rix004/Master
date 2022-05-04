@@ -8,7 +8,7 @@ function [nodes] = MakeTree(x_val,y_val,lev,edges,r_vect,x1,y1,theta,distance,le
         lev = [lev levels-1];
         edges = [edges dist];
         r_vect = [r_vect root_radius];
-        nodes = [x_val' y_val' lev' edges' r_vect'];       % lev er en kolonne som holder styr på hvilket nivå noden er på.
+        nodes = [x_val' y_val' lev' edges' r_vect'];
         
         leftside = MakeTree(x_val,y_val,lev,edges,r_vect,x2,y2,theta-(delta_theta+1*(-1)^(round(rand()))*3.75*rand()),distance*d_rate,levels-1,root_radius*r_rate+0.00*rand(),r_rate,d_rate,delta_theta);
         
