@@ -1,4 +1,4 @@
-function [nodes,cells] = GridGeneration(num_nodes_x,num_nodes_y,Domain)
+function [nodes,cells,triangles] = GridGeneration(num_nodes_x,num_nodes_y,Domain)
  num_nodes = num_nodes_x*num_nodes_y;
  num_elements = (num_nodes_x-1)*(num_nodes_y-1);
  
@@ -12,15 +12,20 @@ function [nodes,cells] = GridGeneration(num_nodes_x,num_nodes_y,Domain)
      end
  end
  
- % Element matrix - connections of nodes into triangles
- k = 0;
+ % Cell matrix - connections of nodes into rectangles
+ % Triangle matrix - connections of nodes into triangles
+ k1 = 0;
+ k2 = 0;
  cells = cell(num_elements,1);
- %elements = zeros(num_elements,4);
+ triangles = cell(num_elements,1);
  for i = 1:num_nodes_y-1
      for j = 1:num_nodes_x-1
         node_p = num_nodes_x*(i-1)+j;
-        cells{k+1}=[node_p,node_p+1,num_nodes_x+node_p+1,num_nodes_x+node_p];
-        k=k+1;
+        cells{k1+1}=[node_p,node_p+1,num_nodes_x+node_p+1,num_nodes_x+node_p];
+        k1=k1+1;
+        triangles{k2+1}=[node_p,num_nodes_x+node_p+1,num_nodes_x+node_p];
+        triangles{k2+2}=[node_p,node_p+1,num_nodes_x+node_p+1];
+        k2=k2+2;
      end
  end
  end
