@@ -1,9 +1,9 @@
 function[Tree]=ChooseTree(t,RandomTree,DT,Domain,Np)
 if strcmp(t, 'Deterministic')
     Tree= GetTree(DT);
-    DrawTree(Tree,10,[0.8500, 0.3250, 0.0980]);
+    Tree.nodes = FindLevels(Tree.nodes,Tree.edges);
 elseif strcmp(t, 'Random')
-    RandomTree.nodes = [RootNode 1];
+    RandomTree.nodes = RootNode;
     RandomTree.edges = [];
     RandomTree = RRT_Tree(RandomTree,Domain,Np,0);
     Tree = RandomTree;
@@ -12,18 +12,13 @@ elseif strcmp(t, 'Combinated')
     DetTree= GetTree(DT);
 
     % Find terminal nodes
-    [Tn,~,~]=FindTerminals(DetTree.nodes,DetTree.edges);
-
+    [Tn,~]=FindTerminals(DetTree.nodes,DetTree.edges);
+    
     % Initiate random tree
-    RandomTree.nodes = Tn;
+    RandomTree.nodes = Tn(:,1:2);
     RandomTree.edges = [];
     RandomTree.TrunkRadius=DetTree.edges(end,4)*RandomTree.RadiusRate;
     RandomTree = RRT_Tree(RandomTree,Domain,Np);
-
-    % Draw trees
-    figure(1)
-    DrawTree(DetTree,50,[0.8500, 0.3250, 0.0980]);
-    DrawTree(RandomTree,1,[0 0.4470 0.7410]);
 
     % Define the combinated tree
     Tree.nodes=[DetTree.nodes;RandomTree.nodes];
@@ -36,6 +31,24 @@ elseif strcmp(t, 'Combinated')
         RandomTree.edges(i,3) = NewEdgeNr2;
     end
     Tree.edges(:,2:4) = [DetTree.edges(:,2:4);RandomTree.edges(:,2:4)];
+    Tree.nodes = FindLevels(Tree.nodes,Tree.edges);
+    Tree.RadiusRate = RandomTree.RadiusRate;
+    [TNinfo,TNlogic]=FindTerminals(Tree.nodes,Tree.edges);
+    while size(TNinfo,1)>Np
+        [Tree.nodes,Tree.edges]=CutTree(Tree.nodes,Tree.edges,max(Tree.nodes(:,3)));
+        Tree.nodes = FindLevels(Tree.nodes,Tree.edges);
+        [TNinfo,TNlogic]=FindTerminals(Tree.nodes,Tree.edges);
+        size(TNinfo,1);
+    end
+    while size(TNinfo,1)<Np
+        [x_r,y_r] = RandomState(Domain);
+        Tree.nodes = Tree.nodes(:,1:2);
+        Tree = AddOnePoint(Tree,x_r,y_r);
+        [TNinfo,TNlogic]=FindTerminals(Tree.nodes,Tree.edges);
+        Tree.nodes = FindLevels(Tree.nodes,Tree.edges);
+        size(TNinfo,1);
+    end
+    
 elseif strcmp(t, 'Half Deterministic')
     DetTree= GetTree(DT);
     pos_nodes = find(DetTree.nodes(:,1)>=0);

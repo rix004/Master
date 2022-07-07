@@ -1,9 +1,9 @@
 function IntensityMap(c,v,x,Name)
     x_unique = unique(x);
     x_sorted = sort(x_unique,'descend');
-    cm = colormap(gray(length(x_sorted)*2));
-    cm = cm(1:length(x_sorted),:);
-    %figure('Name',Name)
+    cm = colormap(gray(length(x_sorted)));
+    %cm = cm(1:length(x_sorted),:);
+    figure('Name',Name)
     for i = 1:size(c,1)
         coords=v(c{i},:);
         pgon = polyshape(coords(:,1),coords(:,2));

@@ -61,7 +61,7 @@ for i = 1:num_edges/2
     g = g+2;
     f = f+1;
 end
-tree.nodes = nodes;
+tree.nodes = nodes(:,1:2);
 tree.edges = edges;
 end
 

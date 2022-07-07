@@ -10,18 +10,13 @@ function[tree]=RRT_Tree(tree,D,Np)
 % Column 3 = to-node   (child)
 % Column 4 = radius
 
-
-for i = 1:Np
+num_cells = 0;
+while num_cells < Np
     [x_r,y_r] = RandomState(D);
     NewTree = AddOnePoint(tree,x_r,y_r);
     tree.nodes = NewTree.nodes;
     tree.edges = NewTree.edges;
+    [Tn,~] = FindTerminals(tree.nodes,tree.edges);
+    num_cells = size(Tn,1);
 end
-
-function[x_rand,y_rand]=RandomState(D)
-    x_rand = D(1) + (D(2)-D(1)).*rand(1,1);
-    y_rand = D(3) + (D(4)-D(3)).*rand(1,1);
-end
-
-
 end

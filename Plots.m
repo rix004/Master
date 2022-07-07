@@ -22,7 +22,7 @@
 
 
 % figure('Name','Pressure plot')
-% for i = 1:Ne
+% for i = 1:size(edges,1)
 %     x = [nodes(edges(i,2),1) nodes(edges(i,3),1)];
 %     y = [nodes(edges(i,2),2) nodes(edges(i,3),2)];
 %     pressure = [p_network(edges(i,2)) p_network(edges(i,3))];
@@ -30,9 +30,9 @@
 %     hold on
 %     grid on
 % end
-% p_map = autumn(Nn+Ntn*3);
-% network_map = p_map(Ntn*2:end,:);
-% for i = 1:Nn
+% p_map = autumn(size(nodes,1)+size(TNinfo,1)*3);
+% network_map = p_map(size(TNinfo,1)*2:end,:);
+% for i = 1:size(nodes,1)
 %     x = nodes(i,1);
 %     y = nodes(i,2);
 %     pressure = p_network(i);
@@ -43,15 +43,24 @@
 %     hold on
 % end
 % zlabel('Node pressure')
-% 
-% darcy_map = p_map(1:3*Ntn,:);
+
+% darcy_map = p_map(1:3*size(TNinfo,1),:);
 % 
 % [xq,yq]=meshgrid(D(1):0.05:D(2), D(3):0.05:D(4));
-% p_points = [Tn(:,1:2);boundary_cells(:,1:2);[D(1) D(3)];[D(1) D(4)];[D(2) D(3)]; [D(2) D(4)]];
+% p_points = [TNinfo(:,1:2);boundary_cells(:,1:2);[D(1) D(3)];[D(1) D(4)];[D(2) D(3)]; [D(2) D(4)]];
 % p_values = [p_darcy;Bv_darcy*ones(size(boundary_cells,1)+4,1)];
 % vq = griddata(p_points(:,1),p_points(:,2),p_values,xq,yq);
 % surf(xq,yq,vq)
 % colormap(darcy_map)
+
+%     figure(15)
+%     a = num2str(iter);
+%     subplot(2,5,iter)
+%     IntensityMap(cells,vertices,kT(:,iter),a)
+%     plot(nodes(MacroTermIndexes(TN),1),nodes(MacroTermIndexes(TN),2),'r*')
+%     hold on
+%     title(a)
+%     axis(D)
 
 figure
 loglog([0.25 0.25/2 0.25/4 0.25/8],[0.1 0.05 0.025 0.025/2],'-','LineWidth',3,'Color','r')

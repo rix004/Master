@@ -33,7 +33,7 @@ if size(Tree.edges,1) > 0
             NewTree.edges(edge_nr+1,:) = [l2 size(Tree.nodes,1)+1 Tree.edges(edge_nr,3) Tree.edges(edge_nr,4)];
             NewTree.edges(edge_nr+2:end-1,:) = Tree.edges(edge_nr+1:end,:);
             NewTree.edges(end,:) = [DistToEdge size(Tree.nodes,1)+1 size(Tree.nodes,1)+2 Tree.edges(edge_nr,4)*Tree.RadiusRate];
-            NewTree.nodes = [Tree.nodes;x_new y_new Tree.nodes(Tree.edges(edge_nr,2),3);x y Tree.nodes(Tree.edges(edge_nr,2),3)+1];
+            NewTree.nodes = [Tree.nodes;x_new y_new;x y];
     elseif DistToEdge >= d1
     % If no edge is closer to (x,y) than the nearest node, we check all the
     % edges belonging to the nearest node. The data of these edges are stored
@@ -88,16 +88,18 @@ if size(Tree.edges,1) > 0
                 NewTree.edges(edge_nr+1,:) = [l2 size(Tree.nodes,1)+1 Tree.edges(edge_nr,3) Tree.edges(edge_nr,4)];
                 NewTree.edges(edge_nr+2:end-1,:) = Tree.edges(edge_nr+1:end,:);
                 NewTree.edges(end,:) = [d1*sind(theta) size(Tree.nodes,1)+1 size(Tree.nodes,1)+2 Tree.edges(edge_nr,4)*Tree.RadiusRate];
-                NewTree.nodes = [Tree.nodes;x_new y_new Tree.nodes(Tree.edges(edge_nr,2),3);x y Tree.nodes(Tree.edges(edge_nr,2),3)+1];
+                NewTree.nodes = [Tree.nodes;x_new y_new;x y];
             else
                 % Update tree
-                NewTree.nodes = [Tree.nodes;x y Tree.nodes(Tree.edges(edge_nr,3),3)+1];
-                NewTree.edges = [Tree.edges;d1 k size(Tree.nodes,1)+1 Tree.edges(edge_nr,4)];
+                NewTree.nodes = [Tree.nodes;x y];
+                NewTree.edges = [Tree.edges;d1 k size(Tree.nodes,1)+1 Tree.edges(edge_nr,4)*Tree.RadiusRate];
             end
         elseif size(check_edges,1) == 0
-            % The nearest node is a terminal node
+            % The nearest node is a terminal node (there are edges in the
+            % Tree, but not on this node, this will happen when building
+            % the combinated tree).
             % Update tree
-            NewTree.nodes = [Tree.nodes;x y Tree.nodes(end,3)+1];
+            NewTree.nodes = [Tree.nodes;x y];
             NewTree.edges = [Tree.edges;d1 k size(Tree.nodes,1)+1 Tree.TrunkRadius];
         else
             disp('Check edges feil')
@@ -106,11 +108,12 @@ if size(Tree.edges,1) > 0
         disp('Shady ting skjer 1')
     end
 elseif size(Tree.edges,1) == 0
+        % There are no edges at all in the Tree. 
         % Update tree
-        NewTree.nodes = [Tree.nodes;x y Tree.nodes(end,3)+1];
+        NewTree.nodes = [Tree.nodes;x y];
         NewTree.edges = [Tree.edges;d1 k size(Tree.nodes,1)+1 Tree.TrunkRadius];
 else
     disp('shady ting skjer 2')
 end
-
+NewTree.RadiusRate = Tree.RadiusRate;
 end

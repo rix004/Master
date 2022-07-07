@@ -4,6 +4,8 @@
 function[A,LHS,bound_vals,RHS,cell_center,pedges,cell_area,boundary_points,bv_out] = TPFA(cells,vertices,f,K_D,BC_type,bc,r_0)
 cell_center = zeros(size(cells,1),2);
 m = 1;
+
+% Find all edges
 for i = 1:size(cells,1)
     coords = vertices(cells{i},:);
     cell_area(i) = polyarea(coords(:,1),coords(:,2));
@@ -33,6 +35,7 @@ for i = 1:size(cells,1)
                 
 end
 
+% Find length of edges
 num_edges = size(p_con,2);
 bc_edges = zeros(num_edges,1);
 x1 = vertices(pedges(:,1),1);
@@ -42,7 +45,9 @@ y2 = vertices(pedges(:,2),2);
 l_edge = sqrt((x1-x2).^2+(y1-y2).^2);
 d = zeros(num_edges,1);
 
+% Make connectivity matrix
 Div = sparse(p_con);
+Grad = Div';
 bound_count = 1;
 for i = 1:num_edges
     n_cells = find(p_con(:,i)~=0);    % neighbouring cells
@@ -67,19 +72,20 @@ end
 boundary_cells=unique(boundary_cells);
 
 % Construct matrices
-T = K_D(cell_center(:,1),cell_center(:,2)).*l_edge./d;
+B = l_edge./d;
 flux_boundary = zeros(num_edges);
 for i = 1:num_edges
-    A(:,i)=Div(:,i)*T(i);
+    A(i,:)=Grad(i,:)*B(i);
     if bc_edges(i) == 1 && BC_type == 2
         flux_boundary(i,i)=1;
     elseif bc_edges(i) == 1 && BC_type == 1
-        flux_boundary(i,i)=T(i);
+        flux_boundary(i,i)=B(i)*K_D; % Må endres dersom K_D skal avhenge av posisjon
     end
 end
-A = A';
-full(A);
-full(flux_boundary);
+
+for i = 1:size(cells,1)
+    A(:,i)=K_D*A(:,i);
+end
 LHS = Div*A;
 
 % RHS
@@ -92,7 +98,7 @@ b = b';
 % Boundary values
 bv = zeros(num_edges,1);
 bv(bc_edges==1)=bc;
-% Test with Peaceman
+% Test with Peaceman correction
 % r = sqrt((0-boundary_points(:,1)).^2+(0-boundary_points(:,2)).^2);
 % bv(bc_edges==1)=-bc/(2*pi)*log(r./r_0);
 bound_vals = flux_boundary*bv;
