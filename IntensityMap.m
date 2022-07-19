@@ -14,7 +14,7 @@ function IntensityMap(c,v,x,Name)
         if x_here == 0
             pg.FaceColor = [1 1 1];
         else
-            pg.FaceColor = cm(ind,:);
+            pg.FaceColor = cm(3,:);
         end
         hold on
     end

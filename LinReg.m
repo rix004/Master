@@ -12,7 +12,7 @@ for iter = 1:iterations
 %     plot(r(T_cells1(:,iter)==1,iter),kT(T_cells1(:,iter)==1,iter),'.','MarkerSize',20);
 %     hold on
 end
-map = turbo(iterations)
+map = turbo(iterations);
 for iter = 1:iterations
     plot(r(T_cells1(:,iter)==1,iter),kT(T_cells1(:,iter)==1,iter),'.','MarkerSize',20,'Color',map(iter,:));
     yline(TrueKT(iter),'LineWidth',2.5,'Color',map(iter,:),'LineStyle','--')
@@ -20,12 +20,18 @@ for iter = 1:iterations
 end
 %set(gca,'YScale','log');
 ylim([min(max(kT))-0.1*min(max(kT)) max(max(kT))+0.1*max(max(kT))])
-xlabel('|x_{Macro} - x_{Micro}|')
-ylabel('kT','Rotation',0)
+xlabel('R','FontSize',15)
 % t = ktToPlot(1);
+yyaxis left
+ylabel('K^{T}','FontSize',15,'Rotation',0)
 yticks(sort(TrueKT));
+yyaxis right
+ylim([min(max(kT))-0.1*min(max(kT)) max(max(kT))+0.1*max(max(kT))])
+ylabel('Δn','FontSize',15,'Rotation',0)
+yticks(sort(TrueKT));
+yticklabels({'6','5','4','3','2','1'})
 
-%lgd = legend('1','2','3','4','5');
+lgd = legend('Calculated by code','Calculated by hand');
 
 figure('Name','Linear regression')
 linreg = fitlm(rToPlot,ktToPlot);

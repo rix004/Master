@@ -1,7 +1,7 @@
 %clc;
 close all
 clear;
-iterations = 6;
+iterations = 5;
 TN = 1;
 Ncells =100; 
 %kT=zeros(Ncells,num_runs);
@@ -93,14 +93,16 @@ for iter = 1:iterations
     if iter == iterations
     a = 'Impact field of one terminal node';
     IntensityMap(cells,vertices,kT(:,iter),a)
-    plot(nodes(MacroTermIndexes(TN),1),nodes(MacroTermIndexes(TN),2),'r*','MarkerSize',20)
     hold on
     %title(a)
     axis(D)
-    DrawTree(Tree,100,'b',D);
+    DrawTree(Tree,150,'b',D);
     DETtree.nodes = DETnodes;
     DETtree.edges = DETedges;
-    DrawTree(DETtree,100,[0.8500, 0.3250, 0.0980],D);
+    DrawTree(DETtree,150,[0.8500, 0.3250, 0.0980],D);
+    plot(nodes(MicroTermIndexes,1),nodes(MicroTermIndexes,2),'b.','MarkerSize',10)
+    plot(nodes(MacroTermIndexes(TN),1),nodes(MacroTermIndexes(TN),2),'.','MarkerSize',30,'Color',[0.8500, 0.3250, 0.0980])
+    hold on
     axis off
     end
 
