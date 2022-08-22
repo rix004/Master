@@ -1,9 +1,8 @@
-function IntensityMap(c,v,x,Name)
+function IntensityMap(c,v,x)
     x_unique = unique(x);
     x_sorted = sort(x_unique,'descend');
     cm = colormap(gray(length(x_sorted)));
     %cm = cm(1:length(x_sorted),:);
-    figure('Name',Name)
     for i = 1:size(c,1)
         coords=v(c{i},:);
         pgon = polyshape(coords(:,1),coords(:,2));
@@ -14,7 +13,7 @@ function IntensityMap(c,v,x,Name)
         if x_here == 0
             pg.FaceColor = [1 1 1];
         else
-            pg.FaceColor = cm(3,:);
+            pg.FaceColor = cm(ind,:);
         end
         hold on
     end

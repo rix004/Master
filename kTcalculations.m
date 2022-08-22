@@ -1,43 +1,40 @@
 %clc;
 close all
 clear;
-iterations = 5;
+iterations = 1;
 TN = 1;
-Ncells =100; 
-%kT=zeros(Ncells,num_runs);
+Ncells =200; 
 
 % Deterministic tree data
-RootNode = [2.5 0];
-DT.Levels = 9;
+RootNode = [0.5 0];
+DT.Levels = 4;
 DT.StartPos = RootNode;
 DT.StartAngle = 90;
-DT.RotationAngle = 90;
+DT.RotationAngle = 47.25;
 DT.TrunkRadius = 0.05;    % mm
 DT.RadiusRate = 0.7;
-DT.TrunkLength = 5/sqrt(2)/2; %mm
+DT.TrunkLength = 0.7/sqrt(2)/2; %mm
 DT.LengthRate = 1/sqrt(2);
 
 % Random tree data
 RandomTree.TrunkRadius = DT.TrunkRadius*DT.RadiusRate^DT.Levels;
 RandomTree.RadiusRate = 0.7;
 
-D = [0 5 0 5/sqrt(2)];
+% Domain
+D = [0 1 0 1/sqrt(2)];
 D_area = (D(2)-D(1))*(D(4)-D(3));
 
 for iter = 1:iterations
-    CutLevel = DT.Levels-iter;
+    % Where to cut
+    CutLevel = DT.Levels;
+
     % Make tree
     trees = {'Deterministic','Random','Combinated','Half Deterministic'};
-    flag.case = trees{1};
+    flag.case = trees{3};
     Tree = ChooseTree(flag.case,RandomTree,DT,D,Ncells);
     nodes = Tree.nodes; edges = Tree.edges;
-    if strcmp(flag.case, 'Combinated')
-    DETnodes = nodes(1:2^(DT.Levels-1),:);
-    DETedges = edges(1:2^(DT.Levels-1)-1,:);
-    elseif strcmp(flag.case, 'Deterministic')
     DETnodes = nodes(1:2^(CutLevel-1),:);
     DETedges = edges(1:2^(CutLevel-1)-1,:);
-    end
 
     % Find terminal nodes
     [TNinfo,TNlogic]=FindTerminals(nodes,edges);
@@ -65,20 +62,19 @@ for iter = 1:iterations
     Neu_network = 5;
     Dir_network = 1;
     Bv_darcy = -1;
-    
 
-    %%% Find K_T %%%
+    %%% Solve for pressure and flux in system %%%
     [Grad_D,LHS,D_bvs,RHS,cell_center,cell_edges,cell_area,boundary_cells,bv] = TPFA(cells,vertices,f,K_D,1,Bv_darcy,edges(TNinfo(end,3),4));
     [q_network,p_network]=SolveNetwork(nodes,edges,K_N,TNlogic,-1);
     
     %%% For validation %%%%
-    pMicro = p_network(1);
-    count = 1;
-    for i = 1:DT.Levels-1
-        pMicro = pMicro - q_network(count)/K_N(count);
-        count = count + 2^(i-1);
+    summ = 0;
+    for j = CutLevel:DT.Levels-1
+        summ = summ + DT.LengthRate^(j-1)/(2^(j-1)*DT.RadiusRate^(4*(j-1)));
     end
-    kT_calculated(iter) = (q_network(1)/2^(DT.Levels-2))/(p_network(MacroTermIndexes(TN))-(pMicro))*(1/(D_area/2^(DT.Levels-2)));
+    K_Tcalc(iter) = pi*DT.TrunkRadius^4/(8*mu*DT.TrunkLength*D_area*summ);
+
+    %kT_calculated = 0;
 
     %%% Find K^T %%%
     [K_T,connections] = findKT1(edges,cell_area,MicroTermIndexes,MacroTermIndexes,TNinfo,q_network,p_network,mu);
@@ -89,21 +85,21 @@ for iter = 1:iterations
     for it = 1:sum(connections(:,TN)==1)
         qT(it)=kTnotZero(it)*(p_network(MacroTermIndexes(TN))-p_termnodes(it));
     end
-
+    
+    %%% Figure of the impact field %%%
     if iter == iterations
-    a = 'Impact field of one terminal node';
-    IntensityMap(cells,vertices,kT(:,iter),a)
-    hold on
-    %title(a)
-    axis(D)
-    DrawTree(Tree,150,'b',D);
-    DETtree.nodes = DETnodes;
-    DETtree.edges = DETedges;
-    DrawTree(DETtree,150,[0.8500, 0.3250, 0.0980],D);
-    plot(nodes(MicroTermIndexes,1),nodes(MicroTermIndexes,2),'b.','MarkerSize',10)
-    plot(nodes(MacroTermIndexes(TN),1),nodes(MacroTermIndexes(TN),2),'.','MarkerSize',30,'Color',[0.8500, 0.3250, 0.0980])
-    hold on
-    axis off
+        figure(1)
+        IntensityMap(cells,vertices,kT(:,iter))
+        hold on
+        axis(D)
+        DrawTree(Tree,150,'b',D);
+        DETtree.nodes = DETnodes;
+        DETtree.edges = DETedges;
+        DrawTree(DETtree,150,[0.8500, 0.3250, 0.0980],D);
+        plot(nodes(MicroTermIndexes,1),nodes(MicroTermIndexes,2),'b.','MarkerSize',10)
+        plot(nodes(MacroTermIndexes(TN),1),nodes(MacroTermIndexes(TN),2),'.','MarkerSize',30,'Color',[0.8500, 0.3250, 0.0980])
+        hold on
+        axis off
     end
 
     r(:,iter) = sqrt((TNinfo(:,1)-nodes(MacroTermIndexes(TN),1)).^2+(TNinfo(:,2)-nodes(MacroTermIndexes(TN),2)).^2);
@@ -114,4 +110,4 @@ for iter = 1:iterations
     disp(iter)
 end
 
-[a,b] = LinReg(kT,r,iter,MicroTermIndexes,MacroTermIndexes,kT_calculated);
+[a,b] = LinReg(kT,r,iter,MicroTermIndexes,MacroTermIndexes,K_Tcalc);

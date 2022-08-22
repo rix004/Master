@@ -5,7 +5,7 @@ clear;
 
 k = 2;
 p_exact = @(x,y) x.*(x-1).*y.*(y-1);
-nx = 3;
+nx = 12;
 ny = nx;
 dx=1/(nx-1);
 dy=1/(ny-1);
