@@ -1,16 +1,19 @@
-function[p_darcy,q_T,q_network,p_network]=SolveSystemUpS(nodes,edges,TNlogic,TNinfo,Dir_network,Neu_network,mu,k,K_N,K_T,Term2Cell,LHS,RHS,cell_area,BC)
-Ne = length(edges);
-Nn = length(nodes);
+function[p_darcy,q_T,q_network,p_network]=SolveSystemUpS(Tree,TNlogic,TNinfo,Dir_network,Neu_network,mu,k,K_N,K_T,Term2Cell,LHS,RHS,cell_area,BC)
+nodes = Tree.nodes;
+edges = Tree.edges;
+Ne = size(edges,1);
+Nn = size(nodes,1);
 Nin = sum(1-TNlogic)-1;                        % Interior nodes
 Npn = sum(1-TNlogic);                          % Parent nodes
 Ntn = sum(TNlogic);
 Ncells = length(cell_area);
 connections = sparse([1:Ne, 1:Ne]', [edges(:,2); edges(:,3)], [-ones(Ne,1);ones(Ne,1)]);
 I = spdiags(ones(Ncells,1),0,Ncells,Ncells);
-
+Volume=I.*cell_area;
 
 if strcmp(BC, 'Dirichlet')
-    Bc_nodes = [1;zeros(Nn-1,1)];
+    Bc_nodes = zeros(Nn,1);
+    Bc_nodes(Tree.RootNodeIdx)=1;
     Term_edges = zeros(Ne,1);
     Term_edges(TNinfo(:,3))=1;
     connections_trimmed = connections(:,(TNlogic+Bc_nodes)==0);
@@ -19,17 +22,10 @@ if strcmp(BC, 'Dirichlet')
     for i = 1:size(I2,2)
         I2(TNinfo(i,3),i)=1;
     end
+    
+    Term2Cell = Term2Cell.*cell_area;
 
-    for i = 1:size(Term2Cell,1)
-        Term2Cell(i,:)=Term2Cell(i,:);
-    end
-%     size([LHS, sparse(Ncells,Ne), sparse(Ncells,Nin), sparse(Ncells,Ntn),-I])
-%     size([sparse(Ne,Ncells), spdiags(K_N.^-1,0,Ne,Ne), connections_trimmed, I2, sparse(Ne,Ncells)])
-%     size([sparse(Nin,Ncells), connections_trimmed', sparse(Nin,Nin), sparse(Nin,Ntn), sparse(Nin,Ncells)])
-%     size([spdiags(nonzeros(K_T),0,Ncells,Ncells), sparse(Ncells,Ne), sparse(Ncells,Nin), -K_T, I])
-%     size([RHS; -connections*Dir_network*Bc_nodes; zeros(Nin,1); zeros(Ntn,1); zeros(Ncells,1)])
-
-    A = [LHS, sparse(Ncells,Ne), sparse(Ncells,Nin), sparse(Ncells,Ntn),-I; % Darcy´s lov + massebevaring i Darcydomenet (2.1 og 2.4)
+    A = [LHS, sparse(Ncells,Ne), sparse(Ncells,Nin), sparse(Ncells,Ntn),-Volume; % Darcy´s lov + massebevaring i Darcydomenet (2.1 og 2.4)
     sparse(Ne,Ncells), spdiags(K_N.^-1,0,Ne,Ne), connections_trimmed, I2, sparse(Ne,Ncells); % Poiseuilles lov (2.5)
     sparse(Nin,Ncells), connections_trimmed', sparse(Nin,Nin), sparse(Nin,Ntn), sparse(Nin,Ncells); % Massebevaring i indre noder (2.2)
     sparse(Ntn,Ncells), I2', sparse(Ntn,Nin), sparse(Ntn,Ntn), -Term2Cell; % Massebevaring i terminalnoder (2.3)

@@ -1,13 +1,13 @@
 function[a,b]=LinReg(kT,r,iterations,MicroTermIndexes,MacroTermIndexes,TrueKT)
-T_cells1 = zeros(size(kT));
-T_cells1(kT>0)=1;
+NotZeroVals = zeros(size(kT));
+NotZeroVals(kT>0)=1;
 
 %%% KUN NETTVERK %%%
 rToPlot=[];
 ktToPlot=[];
 for iter = 1:iterations
-    rToPlot = [rToPlot;r(T_cells1(:,iter)==1,iter)];
-    ktToPlot = [ktToPlot;kT(T_cells1(:,iter)==1,iter)];
+    rToPlot = [rToPlot;r(NotZeroVals(:,iter)==1,iter)];
+    ktToPlot = [ktToPlot;kT(NotZeroVals(:,iter)==1,iter)];
 end
 
 
@@ -15,43 +15,13 @@ linreg = fitlm(rToPlot,log(ktToPlot));
 a = linreg.Coefficients.Estimate(2);
 b = linreg.Coefficients.Estimate(1);
 
-% figure(2)
-% plot(linreg);
-% set(gca,'YScale','log');
-% xlabel('R','FontSize',18)
-% ylabel('ln kT','Rotation',0,'FontSize',18);
-% title(' ')
-% set(legend,'visible','off')
-% 
-% 
-% map = turbo(7);
-% 
-% figure(3)
-% for iter = 1:iterations
-%     plot(r(T_cells1(:,iter)==1,iter),kT(T_cells1(:,iter)==1,iter),'.','MarkerSize',20,'Color',map(iter+1,:));
-%     hold on
-% end
-% set(gca,'YScale','log');
-% 
-% for iter = 1:iterations
-%     plot(r(T_cells1(:,iter)==1,iter),kT(T_cells1(:,iter)==1,iter),'.','MarkerSize',20,'Color',map(iter,:));
-%     yline(TrueKT(iter),'LineWidth',2.5,'Color',map(iter,:),'LineStyle','--')
-%     hold on
-% end
-% 
-% ylim([min(max(kT))-0.1*min(max(kT)) max(max(kT))+0.1*max(max(kT))])
-% yyaxis left
-% yticks(sort(TrueKT));
-% yyaxis right
-% ylim([min(max(kT))-0.1*min(max(kT)) max(max(kT))+0.1*max(max(kT))])
-% ylabel('Δm','FontSize',15,'Rotation',0)
-% yticks(sort(TrueKT));
-% yticklabels({'6','5','4','3','2','1'})
-% lgd = legend('Calculated by code','Calculated by hand');
-% ylabel('K^{T}','FontSize',15,'Rotation',0)
-% xlabel('R','FontSize',15)
-
-
+figure()
+plot(linreg);
+set(gca,'YScale','log');
+xlabel('R','FontSize',18)
+ylabel('ln kT','Rotation',0,'FontSize',18);
+title(' ')
+set(legend,'visible','off')
 
 %%% HELE SYSTEMET %%%%
 

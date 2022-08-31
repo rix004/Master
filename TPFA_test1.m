@@ -3,7 +3,7 @@ close all
 %clc;
 clear;
 
-k = 2;
+K_D = 2;
 p_exact = @(x,y) x.*(x-1).*y.*(y-1);
 nx = 12;
 ny = nx;
@@ -20,8 +20,8 @@ for i = 1:size(cells,1)
         hold on
 end
 
-f = @(x,y) (2.*y -2.*y^2)*k +(2.*x -2.*x.^2)*k; 
-[Grad_D,LHS,D_bvs,RHS,cell_center,cell_edges,cell_area,boundary_cells,bv_out] = TPFA(cells,vertices,f,k,1,0);
+f = @(x,y) (2.*y -2.*y^2)*K_D +(2.*x -2.*x.^2)*K_D; 
+[Grad_D,LHS,D_bvs,RHS,cell_center,cell_edges,cell_area,boundary_cells,bv_out] = TPFA(cells,vertices,f,K_D,1,0);
 p = LHS\RHS;
 
 X1 = reshape(cell_center(:,1),nx-1,ny-1);

@@ -2,6 +2,7 @@ function[Tree]=ChooseTree(t,RandomTree,DT,Domain,Np)
 if strcmp(t, 'Deterministic')
     Tree= GetTree(DT);
     Tree.nodes = FindLevels(Tree.nodes,Tree.edges);
+    Tree.RootNodeIdx = 1;
 elseif strcmp(t, 'Random')
     RandomTree.nodes = RootNode;
     RandomTree.edges = [];
@@ -12,7 +13,7 @@ elseif strcmp(t, 'Combinated')
     DetTree= GetTree(DT);
 
     % Find terminal nodes
-    [Tn,~]=FindTerminals(DetTree.nodes,DetTree.edges);
+    [Tn,~]=FindTerminals(DetTree);
     
     % Initiate random tree
     RandomTree.nodes = Tn(:,1:2);
@@ -33,38 +34,27 @@ elseif strcmp(t, 'Combinated')
     Tree.edges(:,2:4) = [DetTree.edges(:,2:4);RandomTree.edges(:,2:4)];
     Tree.nodes = FindLevels(Tree.nodes,Tree.edges);
     Tree.RadiusRate = RandomTree.RadiusRate;
-    [TNinfo,TNlogic]=FindTerminals(Tree.nodes,Tree.edges);
-    while size(TNinfo,1)>Np
-        [Tree.nodes,Tree.edges]=CutTree(Tree.nodes,Tree.edges,max(Tree.nodes(:,3)));
-        Tree.nodes = FindLevels(Tree.nodes,Tree.edges);
-        [TNinfo,TNlogic]=FindTerminals(Tree.nodes,Tree.edges);
-        size(TNinfo,1);
-    end
-    while size(TNinfo,1)<Np
-        [x_r,y_r] = RandomState(Domain);
-        Tree.nodes = Tree.nodes(:,1:2);
-        Tree = AddOnePoint(Tree,x_r,y_r);
-        [TNinfo,TNlogic]=FindTerminals(Tree.nodes,Tree.edges);
-        Tree.nodes = FindLevels(Tree.nodes,Tree.edges);
-        size(TNinfo,1);
-    end
-    
-elseif strcmp(t, 'Half Deterministic')
-    DetTree= GetTree(DT);
-    pos_nodes = find(DetTree.nodes(:,1)>=0);
-    neg_nodes = find(DetTree.nodes(:,1)<0);
-    half_nodes = DetTree.nodes(pos_nodes,:);
-    pos_edges = ismember(DetTree.edges(:,3),pos_nodes);
-    half_edges = DetTree.edges(pos_edges==1,:);
-    for i = 1:length(half_edges)
-        ii = find(pos_nodes==half_edges(i,3));
-        jj = find(pos_nodes==half_edges(i,2));
-        half_edges(i,3)=ii;
-        half_edges(i,2)=jj;
-    end
-    Tree.nodes = half_nodes;
-    Tree.edges = half_edges;
-    DrawTree(Tree,10,[0.8500, 0.3250, 0.0980]);
+    [TNinfo,TNlogic]=FindTerminals(Tree);
+%     while size(TNinfo,1)>Np
+%         [Tree.nodes,Tree.edges]=CutTree(Tree.nodes,Tree.edges,max(Tree.nodes(:,3)));
+%         Tree.nodes = FindLevels(Tree.nodes,Tree.edges);
+%         [TNinfo,TNlogic]=FindTerminals(Tree);
+%         size(TNinfo,1);
+%     end
+%     while size(TNinfo,1)<Np
+%         [x_r,y_r] = RandomState(Domain);
+%         Tree.nodes = Tree.nodes(:,1:2);
+%         Tree = AddOnePoint(Tree,x_r,y_r);
+%         [TNinfo,TNlogic]=FindTerminals(Tree);
+%         Tree.nodes = FindLevels(Tree.nodes,Tree.edges);
+%         size(TNinfo,1);
+%     end
+    Tree.RootNodeIdx = 1;
+elseif strcmp(t, 'DLA')
+    LoadTree = load('C:\Users\jennyhognestad\Documents\MATLAB\Master.mat');
+    Tree.edges = LoadTree.DLAtree.edges;
+    Tree.nodes = LoadTree.DLAtree.nodes;
+    Tree.RootNodeIdx = LoadTree.DLAtree.RootNodeIdx;
 end
 end
 

@@ -8,7 +8,7 @@ clc;
 clear;
 close all
 iterations1 = 10;
-iterations2 = 7;
+iterations2 = 6;
 L2_error = zeros(iterations1,iterations2);
 h = zeros(iterations1,iterations2);
 
@@ -40,19 +40,16 @@ for iter1 = 1:iterations1
 %     figure()
 %     DrawTree(Tree,150,'b',D);
     
+    % Find terminal nodes
+    [TNinfo,TNlogic]=FindTerminals(nodes,edges);
+    
     % Fix edge radiee
     rel = edges(:,1)./edges(:,4);
     fix = find(rel<20);
     edges(fix,4)=edges(fix,1)/100;
     fix = find(edges(:,4)<1E-6);
     edges(fix,4)=1E-6;
-
-    Tree.nodes = nodes;
-    Tree.edges = edges;
-
-    % Find terminal nodes
-    [TNinfo,TNlogic]=FindTerminals(Tree);
-
+    
     %%% Voronoi diagram %%%
     [cells, vertices] = VoronoiDiagram(TNinfo,[D(1) D(1) D(2) D(2) D(1);D(3) D(4) D(4) D(3) D(3)]');
     
@@ -73,7 +70,7 @@ for iter1 = 1:iterations1
     %%% Solve coupled system with stocastic tree %%%
     [Grad_D,LHS,D_bvs,RHS,cell_center,cell_edges,cell_area,boundary_cells,bv] = TPFA(cells,vertices,f,K_D,1,Neu_network,edges(TNinfo(end,3),4));
 
-   [p_darcy,~,~]=SolveSystemEx(Tree,TNinfo,TNlogic,Dir_network,Neu_network,mu,k,K_N,LHS,RHS,cell_area,BC);
+   [p_darcy,~,~,~]=SolveSystemEx(nodes,edges,TNinfo,TNlogic,Dir_network,Neu_network,mu,k,K_N,LHS,RHS,cell_area,BC);
 
     %%%% Test with fundamental solution %%%%%%
     p_exact = @(x,y) -Neu_network*mu/(2*pi*k)*log(sqrt(x.^2+y.^2)/edges(TNinfo(end,3),4));
@@ -95,6 +92,6 @@ for iter1 = 1:iterations1
     end
     disp(iter1)
 end
-save('L2errorDataSystemTest1','L2_error','h');
-%save('L2errorDataSystemTest','L2_error','h');
+
+save('L2errorDataSystemTest','L2_error','h');
 Plots('TotalSystemTest')

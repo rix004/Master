@@ -63,6 +63,7 @@ for i = 1:num_edges/2
 end
 tree.nodes = nodes(:,1:2);
 tree.edges = edges;
+tree.RootNodeIdx = 1;
 end
 
 

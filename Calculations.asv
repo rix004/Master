@@ -177,8 +177,24 @@ end
 % set(yh,'position',p);
 % xticks(l(:,1))
 
-save ('PressurePlotData','D','cell_center','boundary_cells','p_darcyEx','Bv_darcy','p_darcyCoarse');
-Plots('PressureAndDeviation');
+save ('PressurePlotData','D','cell_center','boundary_cells','')
+%Pressure plot
+h1 = figure('Name','Pressure in Darcy domain');
+subplot(1,3,1)
+[xq,yq]=meshgrid(D(1):0.1:D(2), D(3):0.1:D(4));
+p_points = [cell_center;boundary_cells(:,1:2);[D(1) D(3)];[D(1) D(4)];[D(2) D(3)]; [D(2) D(4)]];
+p_values = [p_darcyEx;Bv_darcy*ones(size(boundary_cells,1)+4,1)];
+vq = griddata(p_points(:,1),p_points(:,2),p_values,xq,yq);
+surf(xq,yq,vq)
+title('Exact model','FontSize',15)
+xlabel('x','FontSize',15)
+ylabel('y','FontSize',15)
+zlabel('P^{D}_h','FontSize',13,'Rotation',0)
+zh = get(gca,'zlabel'); % handle to the label object
+p = get(zh,'position'); % get the current position property
+p(1) = 0.5*p(1) ;        % double the distance, 
+                       % negative values put the label below the axis
+set(zh,'position',p)   % set the new position
 
 figure()
 errorbar(l(:,1),mean(aValue,2),std(aValue,0,2),'.-','LineWidth',2.5)

@@ -100,7 +100,7 @@ bv = zeros(num_edges,1);
 bv(bc_edges==1)=bc;
 % Test with Peaceman correction
 % r = sqrt((0-boundary_points(:,1)).^2+(0-boundary_points(:,2)).^2);
-% bv(bc_edges==1)=-bc/(2*pi)*log(r./r_0);
+% bv(bc_edges==1)=-bc/(2*pi*K_D)*log(r./r_0);
 bound_vals = flux_boundary*bv;
 RHS = Div*flux_boundary*bv + b;
 bv_out = bv(bc_edges==1);
