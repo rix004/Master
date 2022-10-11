@@ -14,8 +14,8 @@ Volume=I.*cell_area;
 if strcmp(BC, 'Dirichlet')
     Bc_nodes = zeros(Nn,1);
     Bc_nodes(Tree.RootNodeIdx)=1;
-    Term_edges = zeros(Ne,1);
-    Term_edges(TNinfo(:,3))=1;
+    %Term_edges = zeros(Ne,1);
+    %Term_edges(TNinfo(:,3))=1;
     connections_trimmed = connections(:,(TNlogic+Bc_nodes)==0);
 
     I2 = zeros(Ne,Ntn);
@@ -25,11 +25,11 @@ if strcmp(BC, 'Dirichlet')
     
     Term2Cell = Term2Cell.*cell_area;
 
-    A = [LHS, sparse(Ncells,Ne), sparse(Ncells,Nin), sparse(Ncells,Ntn),-Volume; % Darcy´s lov + massebevaring i Darcydomenet (2.1 og 2.4)
-    sparse(Ne,Ncells), spdiags(K_N.^-1,0,Ne,Ne), connections_trimmed, I2, sparse(Ne,Ncells); % Poiseuilles lov (2.5)
-    sparse(Nin,Ncells), connections_trimmed', sparse(Nin,Nin), sparse(Nin,Ntn), sparse(Nin,Ncells); % Massebevaring i indre noder (2.2)
-    sparse(Ntn,Ncells), I2', sparse(Ntn,Nin), sparse(Ntn,Ntn), -Term2Cell; % Massebevaring i terminalnoder (2.3)
-    spdiags(nonzeros(K_T),0,Ncells,Ncells), sparse(Ncells,Ne), sparse(Ncells,Nin), -K_T, I];  % Flyt fra nettverk til domene (2.6)
+    A = [LHS, sparse(Ncells,Ne), sparse(Ncells,Nin), sparse(Ncells,Ntn),-Volume;                        % Darcy´s lov + massebevaring i Darcydomenet (2.1 og 2.4)
+    sparse(Ne,Ncells), spdiags(K_N.^-1,0,Ne,Ne), connections_trimmed, I2, sparse(Ne,Ncells);            % Poiseuilles lov (2.5)
+    sparse(Nin,Ncells), connections_trimmed', sparse(Nin,Nin), sparse(Nin,Ntn), sparse(Nin,Ncells);     % Massebevaring i indre noder (2.2)
+    sparse(Ntn,Ncells), I2', sparse(Ntn,Nin), sparse(Ntn,Ntn), -Term2Cell;                              % Massebevaring i terminalnoder (2.3)
+    spdiags(nonzeros(K_T),0,Ncells,Ncells), sparse(Ncells,Ne), sparse(Ncells,Nin), -K_T, I];            % Flyt fra nettverk til domene (2.6)
     
     rhs = [RHS; -connections*Dir_network*Bc_nodes; zeros(Nin,1); zeros(Ntn,1); zeros(Ncells,1)];
 

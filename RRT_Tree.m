@@ -18,12 +18,12 @@ while num_cells < Np
     tree.edges = NewTree.edges;
     [Tn,~] = FindTerminals(tree);
     num_cells = size(Tn,1);
-    if num_cells >= Np
-        NewTree = AddOnePoint(tree,0,0);
-        tree.nodes = NewTree.nodes;
-        tree.edges = NewTree.edges;
-        [Tn,~] = FindTerminals(tree);
-        num_cells = size(Tn,1);
-    end
+%     if num_cells >= Np
+%         NewTree = AddOnePoint(tree,0,0);
+%         tree.nodes = NewTree.nodes;
+%         tree.edges = NewTree.edges;
+%         [Tn,~] = FindTerminals(tree);
+%         num_cells = size(Tn,1);
+%     end
 end
 end

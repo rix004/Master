@@ -1,72 +1,123 @@
 %clc;
-%close all
+close all
 clear;
 TN = 1;
-Ncells = 10;
-iterations = 1;    % How many times to change radiusrate
-iterations1 = 1;    % How many times to change K^D
-
-% Deterministic tree data
-RootNode = [2.5 0];
-DT.Levels = 9;
-DT.StartPos = RootNode;
-DT.StartAngle = 90;
-DT.RotationAngle = 90;
-DT.TrunkRadius = 0.05;    % mm
-DT.RadiusRate = 0.4;
-DT.TrunkLength = 5/sqrt(2)/2; %mm
-DT.LengthRate = 1/sqrt(2);
-
-% Random tree data
-RandomTree.TrunkRadius = DT.TrunkRadius*DT.RadiusRate^DT.Levels;
-RandomTree.RadiusRate = 0.7;
 
 % Domain
 D = [0 5 0 5/sqrt(2)];
 D_area = (D(2)-D(1))*(D(4)-D(3));
 
+% How many times to change delta m
+iterations = 8;
+
+% How many times to change K^D
+iterations1 = 5;    
+
+% Deterministic tree data
+RootNode = [2.5 0];
+DT.Levels = 4;
+DT.StartPos = RootNode;
+DT.StartAngle = 90;
+DT.RotationAngle = 90;
+DT.TrunkRadius = 0.05;    % mm
+DT.RadiusRate = 0.7;
+DT.TrunkLength = 5/sqrt(2)/2; %mm
+DT.LengthRate = 1/sqrt(2);
+
+% RRT data
+RandomTree.TrunkRadius = DT.TrunkRadius*DT.RadiusRate^DT.Levels;
+RandomTree.RadiusRate = 0.7;
+RandomTree.Ncells = 1600;
+RandomTree.TerminalRadius = 0.004;
+
+% DLA tree data
+DLA.Nparticles = 100;
+DLA.RootRadius = 0.5;
+DLA.TerminalRadius = 0.004;
+
 % Make tree
 for iter1 = 1:iterations1
+    % For testing
+    %DT.RadiusRate = 0.4;
+    DT.Levels = 4;
+    M = DT.Levels-1;
     for iter = 1:iterations
-    CutLevel = DT.Levels-5;
+    M = DT.Levels-1;
+    CutLevel = 1;
     trees = {'Deterministic','Random','Combinated','Half Deterministic'};
-    flag.case = trees{1};
-    Tree = ChooseTree(flag.case,RandomTree,DT,D,Ncells);
+    ChosenTree = trees{1};
+    Tree = ChooseTree(ChosenTree,RandomTree,DT,DLA,D);
     nodes = Tree.nodes; edges = Tree.edges;
-    DETnodes = nodes(1:2^(CutLevel-1),:);
-    DETedges = edges(1:2^(CutLevel-1)-1,:);
+    DETnodes = nodes(1:2^(CutLevel),:);
+    DETedges = edges(1:2^(CutLevel)-1,:);
     DETtree.nodes = DETnodes;
     DETtree.edges = DETedges;
     DETtree.RootNodeIdx = 1;
+
     % Find terminal nodes
     [TNinfo,TNlogic]=FindTerminals(Tree);
     MicroTermIndexes = find(TNlogic==1);
     MacroTermIndexes = find(nodes(:,3)==CutLevel);
     
-    % Fix edge radiee
-%     rel = edges(:,1)./edges(:,4);
-%     fix = find(rel<20);
-%     edges(fix,4)=edges(fix,1)/100;
+    if strcmp(ChosenTree,'Deterministic')
+        RootRadius = DT.TrunkRadius;
+        TerminalRadius = RandomTree.TerminalRadius;
+        MicroTermIndexes = find(TNlogic==1);
+        [Graph, ~, ~]=makegraph(Tree.edges(:,2:3),size(Tree.edges,1),size(Tree.nodes,1));
+        NodeLevels = zeros(size(Tree.nodes,1),1);
+        for i = 1:length(MicroTermIndexes)
+            SP = shortestpath(Graph,MicroTermIndexes(i),1);
+            for j = 1:size(Tree.nodes,1)
+                if any(ismember(SP,j)) && NodeLevels(j) < find(ismember(SP,j))-1
+                    NodeLevels(j) = find(ismember(SP,j))-1;
+                end
+            end
+        end
+        
+        
+        power = log(RootRadius/TerminalRadius)/(max(Tree.nodes(:,3))-1);
+        RadiusRate = exp(power);
+        for i = 2:length(NodeLevels)
+            edge = find(Tree.edges(:,3)==i);
+            edgerad = TerminalRadius*RadiusRate^(NodeLevels(i));
+            Tree.edges(edge,4)=edgerad;
+        end
+
+        edges = Tree.edges;
+        nodes = Tree.nodes;
+     
+    end 
     
     %%% Voronoi diagram %%%
     [cells, vertices] = VoronoiDiagram(TNinfo,[D(1) D(1) D(2) D(2) D(1);D(3) D(4) D(4) D(3) D(3)]');
     
     %%% Parameters %%%
-    mu = 3E-6;                                        % viscosity (Ns/mm^2)
-%     if iter1 == 1
-%         k = 3E-3;                                     % permeability (mm^2)
-%     elseif iter1 == 2
-%         k = 3E-4;
-%     elseif iter1 == 3
+
+    % viscosity (Ns/mm^2)
+    mu = 3E-6;   
+
+    % permeability (mm^2)
+    %k = 3E-5;
+    if iter1 == 1
+        k = 3E-3;                                     
+    elseif iter1 == 2
+        k = 3E-4;
+    elseif iter1 == 3
         k = 3E-5;
-%     elseif iter1 == 4
-%         k = 3E-6;
-%     elseif iter1 == 5
-%         k = 3E-7;
-%     end
-    K_N = (pi*edges(:,4).^4./(8*mu*edges(:,1)));      % Conductance
-    K_D = k/mu                                       % Hydraulic conductivity [mm^4/Ns)
-    f = @(x,y) 0;                                     % External sources or sinks
+    elseif iter1 == 4
+        k = 3E-6;
+    elseif iter1 == 5
+        k = 3E-7;
+    end
+
+    % Edge conductance
+    K_N = (pi*edges(:,4).^4./(8*mu*edges(:,1))); 
+
+    % Hydraulic conductivity [mm^4/Ns)
+    K_D = k/mu; 
+
+    % External sources or sinks
+    f = @(x,y) 0;                                     
     
     %%% Set boundary values %%%
     BCs = {'Dirichlet','Neumann'};
@@ -94,25 +145,35 @@ for iter1 = 1:iterations1
         e = e + (p_darcyEx(i)-p_darcyCoarse(i))^2*cell_area(i);
     end
     error(iter,iter1) = sqrt(e/D_area);
-    delta_m(iter,iter1)=iter;
+
+    % Change when testing (x-axis in RMS-plot)
+    delta_m(iter,iter1)=M;
     p_mean(iter,iter1)=mean(p_darcyEx);
     
      if iter == iterations
         KT = K_T(:,TN);
         save('DeterministicIF','cells','vertices','KT','D','Tree','DETtree','MicroTermIndexes','MacroTermIndexes','TN','nodes');
-        Plots('ImpactFieldDeterministic');
+     end
+    % For testing
+     %DT.RadiusRate = DT.RadiusRate + 0.1;
+     DT.Levels = DT.Levels+1;
     end
-    DT.RadiusRate = DT.RadiusRate + 0.1;
-    end
+    % For testing
+    disp(iter1)
 end
 
 %%%% PLOTS %%%%
 %save('CalculationsDetErrorPlot','iterations1','delta_m','error');
 %Plots('ErrorPlotDifferentKD')
+%Plots('ImpactFieldDeterministic');
 
-save ('PressurePlotData','D','cell_center','boundary_cells','p_darcyEx','Bv_darcy','p_darcyCoarse');
-Plots('PressureAndDeviation');
+%save ('PressurePlotData','D','cell_center','boundary_cells','p_darcyEx','Bv_darcy','p_darcyCoarse');
+%Plots('PressureAndDeviation');
 
-
+%save('VaryDeltam_and_M','iterations1','delta_m','error')
+%save('VaryDeltam_and_KD','iterations1','delta_m','error')
+%save('VaryAlphaR_and_KD','iterations1','delta_m','error')
+save('RealRadiiSetup','iterations1','delta_m','error')
+Plots('ErrorPlotDifferentValues','RealRadiiSetup')
 
 

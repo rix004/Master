@@ -1,11 +1,7 @@
-% Sett stien, kjøre filen
-% setpath
-clear;
-% Deretter kjør filen
-% npy2tree;
-
+function[DLAtree]=npy2tree(n_particles,version,RootRadius,TerminalRadius)
 % Les inn data
-bw = readNPY('DLAtre.npy') > 0;
+pathload = ['Tree' int2str(n_particles) 'particles_v' int2str(version) '.npy'];
+bw = readNPY(pathload)>0;
 % bw = bw(230:270, 230:270);
 % bw = imfill(bw, 'holes');
 
@@ -51,8 +47,10 @@ DLAedges(:,1) = tree.segment.L;
 DLAedges(:,2:3)=tree.segment.nodeconn;
 G = graph(DLAedges(:,2),DLAedges(:,3));
 D = distances(G);
-levels = D(:,tree.node.isroot)+1;
+levels = D(:,tree.node.isroot);
 DLAnodes(:,1:3)=[tree.node.avx(:,1:2) levels];
+
+newDLAnodes = sortrows(DLAnodes,3);
 
 % Correction of directions of edges
 e = DLAedges(:,2:3);
@@ -63,30 +61,61 @@ for i = 1:size(e,1)
     end
 end
 
+% Correction of order of edges
+newDLAedges = zeros(size(DLAedges,1),3);
+for i = 1:size(DLAedges,1)
+    NewEdgeNr1=find(ismember(newDLAnodes(:,1:2),DLAnodes(DLAedges(i,2),1:2),"rows"));
+    NewEdgeNr2=find(ismember(newDLAnodes(:,1:2),DLAnodes(DLAedges(i,3),1:2),"rows"));
+    newDLAedges(i,:) = [DLAedges(i,1) NewEdgeNr1 NewEdgeNr2];
+end
 
 % Sett radius
-startradius = 0.05;
-radiusrate = 0.8;
-for i = 1:size(DLAedges,1)
-    nodelevel = DLAnodes(DLAedges(i,3),3);
-    radius = startradius*radiusrate^(nodelevel-1);
-    DLAedges(i,4)=radius;
+newDLAedges(:,4)=0;
+DLAtree.nodes = newDLAnodes;
+DLAtree.edges = newDLAedges;
+DLAtree.edges(:,4)=1;
+
+DLAtree.RootNodeIdx = find(newDLAnodes(:,3)==0);
+[~,TermLog]=FindTerminals(DLAtree);
+TermIndexes = find(TermLog==1);
+
+[Graph, ~, ~]=makegraph(DLAtree.edges(:,2:3),size(DLAtree.edges,1),size(DLAtree.nodes,1));
+NodeLevels = zeros(size(DLAtree.nodes,1),1);
+for i = 1:length(TermIndexes)
+    SP = shortestpath(Graph,TermIndexes(i),1);
+    for j = 1:size(DLAtree.nodes,1)
+        if any(ismember(SP,j)) && NodeLevels(j) < find(ismember(SP,j))-1
+            NodeLevels(j) = find(ismember(SP,j))-1;
+        end
+    end
 end
-tree.segment.avrad = DLAedges(:,4);
-DLAtree.nodes = DLAnodes;
-DLAtree.edges = DLAedges;
-DLAtree.RootNodeIdx = find(tree.node.isroot);
 
-% Plot tre
-p = plotGraph(tree,'2D', 'nodelabel', false, 'edgelabel', false,'linewidth',DLAedges(:,4)*200);
-highlight(p, tree.node.isroot, ...
-    'Nodecolor', 'r', ...
-    'MarkerSize', 8)
 
-% Lagre treet
-save('C:\Users\jennyhognestad\Documents\MATLAB\Master','DLAtree')
-% [~, ~, ~] = mkdir('data');
-% pathsave = fullfile('data', 'DLA-tree.mat');
-% pathsave1 = fullfile('data','mytree.mat');
-% save(pathsave, 'tree', 'prm');
-% save(pathsave1,'DLAtree');
+power = log(RootRadius/TerminalRadius)/(max(DLAtree.nodes(:,3))-1);
+RadiusRate = exp(power);
+for i = 2:length(NodeLevels)
+    edge = find(DLAtree.edges(:,3)==i);
+    edgerad = TerminalRadius*RadiusRate^(NodeLevels(i));
+    DLAtree.edges(edge,4)=edgerad;
+end
+
+% PLOTT TRE
+
+% figure()
+% DrawTree(DLAtree,2,'r',[0.4 0.6 0.4 0.6])
+% for i = 1:size(DLAtree.nodes,1)
+%     plot(DLAtree.nodes(i,1),DLAtree.nodes(i,2),'r.','MarkerSize',10)
+%     text(DLAtree.nodes(i,1),DLAtree.nodes(i,2),num2str(i),'FontSize',14)
+%     hold on
+% end
+% plot(DLAtree.nodes(1,1),DLAtree.nodes(1,2),'*','Color',[0 0 0])
+
+% Erlend sitt plott
+
+% p = plotGraph(tree,'2D', 'nodelabel', false, 'edgelabel', false,'linewidth',2);
+% highlight(p, tree.node.isroot, ...
+%     'Nodecolor', 'r', ...
+%     'MarkerSize', 8)
+
+
+end

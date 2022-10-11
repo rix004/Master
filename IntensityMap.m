@@ -1,20 +1,16 @@
 function IntensityMap(c,v,x)
-    x_unique = unique(x);
-    x_sorted = sort(x_unique,'descend');
-    cm = colormap(gray(length(x_sorted)));
-    %cm = cm(1:length(x_sorted),:);
-    for i = 1:size(c,1)
-        coords=v(c{i},:);
-        pgon = polyshape(coords(:,1),coords(:,2));
-        pg = plot(pgon);
-        x_here = x(i);
-        ind = find(x_sorted==x_here);
-        ind = ind(1);
-        if x_here == 0
-            pg.FaceColor = [1 1 1];
-        else
-            pg.FaceColor = cm(ind,:);
-        end
-        hold on
-    end
+logX = log10(x);
+maxX = max(logX);
+minX = min(logX);
+z = (logX-minX)/(maxX-minX);
+cmap = colormap(gray);
+num = linspace(0,1,256);
+col = zeros(numel(z),3);
+for i1 = 1 : 3
+    col(:,i1) = interp1(num, cmap(:,i1), z);
+end
+for i2 = 1 : numel(z)
+    coords=v(c{i2},:);
+    patch(coords(:,1),coords(:,2),col(i2,:));
+    hold on
 end
