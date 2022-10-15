@@ -532,7 +532,7 @@ if strcmp(ThisFigure,'aVSparticlesDLA')
 map = flip(turbo(7),1);
     for i = 1:5
         if i == 1
-            indata = load('./Filer/KTvsR_DLA1000')
+            indata = load('./Filer/KTvsR_DLA1000');
             data1 = indata;
         elseif i == 2
             indata = load('./Filer/KTvsR_DLA2000');
@@ -624,8 +624,7 @@ map = flip(turbo(7),1);
     %set(gca,'Yscale','log')
     ylabel('log_{10}(K^T [(s \cdot kPA)^{-1}])','FontSize',axisfontsize)
     xlabel('R [mm]','FontSize',axisfontsize)
-    lgd = legend('8000 particles','','','','','','','','','','4000 particles','','','','','','','','','',...
-        '2000 particles','','','','','','','','','','1000 particles')
+    lgd = legend('8000 particles','','','4000 particles','','','2000 particles','','','1000 particles')
     %lgd = legend('','','','1600 particles','2000 particles','500 particles');
     lgd.FontSize = legendfontsize;
     set(gca,'FontSize',15)
@@ -689,34 +688,17 @@ if strcmp(ThisFigure,'ErrorPlotDifferentValuesDLA')
     data1 = load('./Filer/DLAerror_KD_and_Nparticles_1');
     data2 = load('./Filer/DLAerror_KD_and_Nparticles_2');
     data3 = load('./Filer/DLAerror_KD_and_Nparticles_3');
-    data4 = load('./Filer/DLAerror_KD_and_Nparticles_4');
-    data5 = load('./Filer/DLAerror_KD_and_Nparticles_5');
-    data6 = load('./Filer/DLAerror_KD_and_Nparticles_6');
-    data7 = load('./Filer/DLAerror_KD_and_Nparticles_7');
-    data8 = load('./Filer/DLAerror_KD_and_Nparticles_8');
-    data9 = load('./Filer/DLAerror_KD_and_Nparticles_9');
-    data10 = load('./Filer/DLAerror_KD_and_Nparticles_10');
-
     x = data1.x(3:end,:);
     e1 = data1.e_rel(3:end,:);
     e2 = data2.e_rel(3:end,:);
     e3 = data3.e_rel(3:end,:);
-    e4 = data4.e_rel;
-    e5 = data5.e_rel;
-    e6 = data6.e_rel;
-    e7 = data7.e_rel;
-    e8 = data8.e_rel;
-    e9 = data9.e_rel;
-    e10 = data10.e_rel;;
-
 
     data_mean = zeros(size(x));
     data_std = zeros(size(x));
     for i = 1:size(x,1)
         for j = 1:size(x,2)
-            e_vect = [e1(i,j);e2(i,j);e3(i,j);e4(i,j);e5(i,j);e6(i,j);e7(i,j);e8(i,j);e9(i,j);e10(i,j)];
-            data_mean(i,j)=mean(e_vect);
-            data_std(i,j)=std(e_vect);
+            data_mean(i,j)=mean([e1(i,j);e2(i,j);e3(i,j)]);
+            data_std(i,j)=std([e1(i,j);e2(i,j);e3(i,j)]);
         end
     end
     

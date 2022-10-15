@@ -29,8 +29,8 @@ RandomTree.Ncells = 100;
 RandomTree.TerminalRadius = 0.004;
 
 % DLA tree data
-DLA.Nparticles = 16000;
-DLA.RootRadius = 0.05;
+DLA.Nparticles = 1000;
+DLA.RootRadius = 0.5;
 DLA.TerminalRadius = 0.004;
 DLA.version = 1;
 
@@ -40,7 +40,7 @@ for iter1 = 1:iterations1
     M = DT.Levels -1;
     CutLevel = 1;
     trees = {'Deterministic','Random','Combinated','DLA'};
-    ChosenTree = trees{3};
+    ChosenTree = trees{4};
     Tree = ChooseTree(ChosenTree,RandomTree,DT,DLA,D);
     nodes = Tree.nodes; edges = Tree.edges;
     if strcmp(ChosenTree,'Deterministic') || strcmp(ChosenTree,'Combinated')

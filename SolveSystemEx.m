@@ -41,8 +41,8 @@ if strcmp(BC, 'Dirichlet')
     sparse(Nin,Ntn), connections_trimmed', sparse(Nin,Nn-1);
     TN, PC, -I_term_trimmed];
     
-    rhs = [RHS; -connections*Dir_network*Bc_nodes; zeros(Nin,1); zeros(Ntn,1)];
-    SOL = A\rhs;
+    rhs = [RHS; -connections*Dir_network*Bc_nodes; zeros(Nin,1); zeros(Ntn,1)]
+    SOL = A\rhs
 
     p_darcy = SOL(1:Ntn);
     q_network = SOL(Ntn+1:Ntn+Ne);

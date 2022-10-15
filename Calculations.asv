@@ -1,18 +1,18 @@
 %clc;
 close all
 clear;
-iterations = 5;
-iterations1 = 5;
+iterations = 1;
+iterations1 = 1;
 
 % Deterministic tree data
 RootNode = [0.5 0];
-DT.Levels = 2;
+DT.Levels = 5;
 DT.StartPos = RootNode;
 DT.StartAngle = 90;
 DT.RotationAngle = 90;
 DT.TrunkRadius = 0.5;    % mm
 DT.RadiusRate = 0.5;
-DT.TrunkLength = 1/sqrt(2)/2; %mm
+DT.TrunkLength = 5/sqrt(2)/2; %mm
 DT.LengthRate = 1/sqrt(2);
 
 % Random tree data
@@ -25,11 +25,11 @@ RandomTree.TerminalRadius = 0.004;
 DLA.Nparticles = 250;
 DLA.RootRadius = 0.5;
 DLA.TerminalRadius = 0.004;
-DLA.version = 9;
+DLA.version = 10;
 
 % Domain
 %D = [0 5 0 5/sqrt(2)];
-D = [0 1 0 1];
+%D = [0 1 0 1];
 D_area = (D(2)-D(1))*(D(4)-D(3));
 
 
@@ -40,7 +40,7 @@ for iter1 = 1:iterations1
     for iter = 1:iterations
     CutLevel = 1;
     trees = {'Deterministic','Random','Combinated','DLA'};
-    ChosenTree = trees{4};
+    ChosenTree = trees{1};
     Tree = ChooseTree(ChosenTree,RandomTree,DT,DLA,D);
     if strcmp(ChosenTree,'Deterministic') || strcmp(ChosenTree,'Combinated')
         VisibleNodes = Tree.nodes(1:2^(CutLevel),:);
@@ -85,7 +85,7 @@ for iter1 = 1:iterations1
     %%% Parameters %%%
     mu = 3E-6;                                        % viscosity (Ns/mm^2)
     if iter1 == 1
-        k = 3E-4;                                     % permeability (mm^2)
+        k = 3E-8;                                     % permeability (mm^2)
     elseif iter1 == 2
         k = 3E-5;
     elseif iter1 == 3
@@ -110,9 +110,7 @@ for iter1 = 1:iterations1
     [Grad_D,LHS,D_bvs,RHS,cell_center,cell_edges,cell_area,boundary_cells,bv] = TPFA(cells,vertices,f,K_D,1,Bv_darcy,edges(TNinfo(end,3),4));
     [p_darcyEx,q_networkEx,p_networkEx]=SolveSystemEx(Tree,TNinfo,TNlogic,Dir_network,Neu_network,mu,k,K_N,LHS,RHS,cell_area,flag.case);
     
-    if iter == iterations && iter1 == iterations1
-        save('./Filer/PressurePlotDataDLA_','p_darcyEx','p_networkEx','Tree','TNinfo','D','cell_center','boundary_cells','Bv_darcy');
-    end
+    save('./Filer/PressurePlotDataDET','p_darcyEx','p_networkEx','Tree','TNinfo','D','cell_center','boundary_cells','Bv_darcy');
 
     SystemTestEx(Tree,TNlogic,TNinfo,mu,k,p_darcyEx,p_networkEx,q_networkEx,Grad_D,boundary_cells,cell_area,D_bvs,K_N,MacroTermIndexes,MicroTermIndexes)
     
@@ -153,8 +151,7 @@ end
 %%% Error plot DLA tree %%%
 e_rel = error1/(Dir_network-Bv_darcy);
 
-
-%save('./Filer/DLAerror_KD_and_Nparticles_10','e_rel','x');
+save('./Filer/DLAerror_KD_and_Nparticles_10','e_rel','x');
 
 %save('./Filer/RRTerror_KD_ncells_10','e_rel','x');
 %save('ToDrawDLAtree','Tree','VisibleTree','cells','vertices','D','MicroTermIndexes','MacroTermIndexes','TN','K_T')
