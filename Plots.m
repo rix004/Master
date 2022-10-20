@@ -188,9 +188,9 @@ if strcmp(ThisFigure,'ImpactFieldAndDeterministicTree')
         IntensityMap(indata.cells,indata.vertices,indata.K_T(:,indata.TN))
         hold on
         axis(indata.D)
-        DrawTree(indata.Tree,15,'b',indata.D);
+        DrawTree(indata.Tree,150,'b',indata.D);
         indata.VisibleTree
-        DrawTree(indata.VisibleTree,15,[0.8500, 0.3250, 0.0980],indata.D);
+        DrawTree(indata.VisibleTree,150,[0.8500, 0.3250, 0.0980],indata.D);
         plot(indata.Tree.nodes(indata.MicroTermIndexes,1),indata.Tree.nodes(indata.MicroTermIndexes,2),'b.','MarkerSize',10)
         plot(indata.Tree.nodes(indata.MacroTermIndexes(indata.TN),1),indata.Tree.nodes(indata.MacroTermIndexes(indata.TN),2),'.','MarkerSize',30,'Color',[0.8500, 0.3250, 0.0980])
         hold on
@@ -408,82 +408,6 @@ if strcmp(ThisFigure, 'KTradiusrateFIG')
     set(yh,'position',p);
 end
 
-%%%%%%%%%%%%%%%%%%
-%%%% K^T VS R %%%%
-%%%%%%%%%%%%%%%%%%
-if strcmp(ThisFigure,'KTvsR')
-    figure()
-    indata = load('KTvsR_DLA4000');
-    map = turbo(7);
-    % med map = turbo(7): map(6) = rød, map(4) = grønn, map(2) = blå
-    %map = turbo(size(indata.kT,2));
-for iter = 1:size(indata.kT,2)
-    plot(indata.r(indata.NotZeroVals(:,iter)==1,iter),indata.kT(indata.NotZeroVals(:,iter)==1,iter),'.','MarkerSize',20,'Color',map(6,:));
-    hold on
-end
-%set(gca,'YScale','log');
-ylim([min(indata.kT) max(indata.kT)])
-xlim([0 max(max(indata.r))])
-ylabel('K^T [s/Pa]','FontSize',axisfontsize)
-xlabel('R [mm]','FontSize',axisfontsize)
-end
-
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-%%%% Compare pressure solution %%%%
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-if strcmp(ThisFigure,'PressureAndDeviation')
-indata = load('PressurePlotData');
-h1 = figure('Name','Pressure in Darcy domain');
-D = indata.D;
-% Exact model
-subplot(1,2,1)
-[xq,yq]=meshgrid(D(1):0.1:D(2), D(3):0.1:D(4));
-p_points = [indata.cell_center;indata.boundary_cells(:,1:2);[D(1) D(3)];[D(1) D(4)];[D(2) D(3)]; [D(2) D(4)]];
-p_values = [indata.p_darcyEx;indata.Bv_darcy*ones(size(indata.boundary_cells,1)+4,1)];
-vq = griddata(p_points(:,1),p_points(:,2),p_values,xq,yq);
-surf(xq,yq,vq)
-title('Exact model','FontSize',15)
-xlabel('x','FontSize',15)
-ylabel('y','FontSize',15)
-zlabel('p^{D}_h','FontSize',13,'Rotation',0)
-zh = get(gca,'zlabel');
-p = get(zh,'position');
-p(1) = 0.5*p(1) ;
-set(zh,'position',p)
-
-% Deviation (%)
-subplot(1,2,2)
-p_points = [indata.cell_center;indata.boundary_cells(:,1:2);[D(1) D(3)];[D(1) D(4)];[D(2) D(3)]; [D(2) D(4)]];
-p_values = [100*(indata.p_darcyCoarse-indata.p_darcyEx)./indata.p_darcyEx;indata.Bv_darcy*zeros(size(indata.boundary_cells,1)+4,1)];
-vq = griddata(p_points(:,1),p_points(:,2),p_values,xq,yq);
-surf(xq,yq,vq)
-title('Error','FontSize',15)
-xlabel('x','FontSize',15)
-ylabel('y','FontSize',15)
-zlabel('Dev (%)','FontSize',13,'Rotation',0)
-% zh = get(gca,'zlabel');
-% p = get(zh,'position')
-% p(3) = 0.1*p(3) ;
-% set(zh,'position',p)
-colormap jet
-end
-
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-%%%% KT vs. R on deterministic tree with "true radii" %%%%
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-if strcmp(ThisFigure,'KTvsRDET_trueradii')
-    indata = load('KT_Test_TrueRadii')
-    map = turbo(7);
-    figure()
-    for iter = 1:size(indata.kT_DET,2)
-    plot(indata.Numb_levels,indata.kT_DET,'.-','MarkerSize',27,'LineWidth',3,'Color',map(6,:));
-    hold on
-    end
-    %xlim([0 max(max(indata.r))])
-    ylabel('K^T [(s \cdot kPa)^{-1}]','FontSize',axisfontsize)
-    xlabel('M','FontSize',axisfontsize)
-end
-
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %%%% KT vs. R on DLA tree %%%%
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -632,15 +556,8 @@ map = flip(turbo(7),1);
 end
 
 
-% figure('Name','Pressure plot for Darcy domain')
-% plot3(cell_center(:,1),cell_center(:,2),p_darcyEx,'.','MarkerSize',20);
-% grid on
-% xlabel('x','FontSize',15)
-% ylabel('y','FontSize',15)
-% zlabel('p','FontSize',15)
-
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%$$$$$$$$$$$$$$$$$$$$$
-%%%% Pressure plot of network and Darcy domain$$$$$
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%%% Pressure plot of network and Darcy domain %%%%
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 if strcmp(ThisFigure,'PressurePlotNetworkDarcy')
     indata = load(file);
@@ -680,6 +597,49 @@ if strcmp(ThisFigure,'PressurePlotNetworkDarcy')
     vq = griddata(p_points(:,1),p_points(:,2),p_values,xq,yq);
     surf(xq,yq,vq)
     colormap(darcy_map)
+end
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%%% Illustration of exact model %%%%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+if strcmp(ThisFigure,'ExactNetworkModel')
+    indata = load(file);
+    nodes = indata.Tree.nodes;
+    edges = indata.Tree.edges;
+    p_network = indata.p_networkEx;
+    TNinfo = indata.TNinfo;
+    D = indata.D;
+    for i = 1:size(edges,1)
+        x = [nodes(edges(i,2),1) nodes(edges(i,3),1)];
+        y = [nodes(edges(i,2),2) nodes(edges(i,3),2)];
+        pressure = [p_network(edges(i,2)) p_network(edges(i,3))];
+        if nodes(edges(i,3),3) <= 3
+            plot3(x,y,pressure,'-','Color',[0.8500 0.3250 0.0980],'LineWidth',5)
+        else
+            jenny = 1;
+            %plot3(x,y,pressure,'.-','Color',[0 0.4470 0.7410],'LineWidth',2)
+        end
+        if nodes(edges(i,3),3) == 3
+            plot3(nodes(edges(i,3),1),nodes(edges(i,3),2),pressure(2),'.','MarkerSize',30,'Color',[0.8500 0.3250 0.0980])
+%         elseif nodes(edges(i,3),3)==5
+%             plot3(nodes(edges(i,3),1),nodes(edges(i,3),2),pressure(2),'.','MarkerSize',25,'Color',[0 0.4470 0.7410])
+        end
+        hold on
+        grid on
+    end
+    
+    p_map = gray(size(nodes,1)+size(TNinfo,1)*3);
+    network_map = p_map(size(TNinfo,1)*2:end,:);
+    
+    darcy_map = gray(300); %p_map(1:3*size(TNinfo,1),:);
+    
+    [xq,yq]=meshgrid(D(1):0.005:D(2), D(3):0.005:D(4));
+    p_points = [TNinfo(:,1:2);indata.boundary_cells(:,1:2);[D(1) D(3)];[D(1) D(4)];[D(2) D(3)]; [D(2) D(4)]];
+    p_values = [indata.p_darcyEx;indata.Bv_darcy*ones(size(indata.boundary_cells,1)+4,1)];
+    vq = griddata(p_points(:,1),p_points(:,2),p_values,xq,yq);
+    surf(xq,yq,vq)
+    colormap(darcy_map)
+    axis off
 end
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%

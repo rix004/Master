@@ -1,24 +1,24 @@
 %clc;
 close all
 clear;
-iterations = 5;
-iterations1 = 5;
+iterations = 1;
+iterations1 = 1;
 
 % Deterministic tree data
 RootNode = [0.5 0];
-DT.Levels = 2;
+DT.Levels = 4;
 DT.StartPos = RootNode;
 DT.StartAngle = 90;
-DT.RotationAngle = 90;
-DT.TrunkRadius = 0.5;    % mm
-DT.RadiusRate = 0.5;
-DT.TrunkLength = 1/sqrt(2)/2; %mm
+DT.RotationAngle = 60;
+DT.TrunkRadius = 0.05;    % mm
+DT.RadiusRate = 0.7;
+DT.TrunkLength = 0.25; %/sqrt(2)/2; %mm
 DT.LengthRate = 1/sqrt(2);
 
 % Random tree data
 RandomTree.TrunkRadius = DT.TrunkRadius*DT.RadiusRate^DT.Levels;
 RandomTree.RadiusRate = 0.8;
-RandomTree.Ncells = 100;
+RandomTree.Ncells = 50;
 RandomTree.TerminalRadius = 0.004;
 
 % DLA tree data
@@ -28,19 +28,19 @@ DLA.TerminalRadius = 0.004;
 DLA.version = 9;
 
 % Domain
-%D = [0 5 0 5/sqrt(2)];
-D = [0 1 0 1];
+D = [0 1 0 1/sqrt(2)];
+%D = [0 1 0 1];
 D_area = (D(2)-D(1))*(D(4)-D(3));
 
 
 % Make tree
 for iter1 = 1:iterations1
     %RandomTree.Ncells = 100;
-    DLA.Nparticles = 1000;
+    DLA.Nparticles = 8000;
     for iter = 1:iterations
-    CutLevel = 1;
+    CutLevel = 3;
     trees = {'Deterministic','Random','Combinated','DLA'};
-    ChosenTree = trees{4};
+    ChosenTree = trees{3};
     Tree = ChooseTree(ChosenTree,RandomTree,DT,DLA,D);
     if strcmp(ChosenTree,'Deterministic') || strcmp(ChosenTree,'Combinated')
         VisibleNodes = Tree.nodes(1:2^(CutLevel),:);
@@ -63,6 +63,7 @@ for iter1 = 1:iterations1
     nodes = Tree.nodes; edges = Tree.edges;
 
     % Draw tree
+    
     if iter1 == iterations1 && iter == iterations
         DrawTree(Tree,2,[0.8500, 0.3250, 0.0980],D);
 %         DrawTree(Tree,2,[0, 0, 0],D);
@@ -111,7 +112,7 @@ for iter1 = 1:iterations1
     [p_darcyEx,q_networkEx,p_networkEx]=SolveSystemEx(Tree,TNinfo,TNlogic,Dir_network,Neu_network,mu,k,K_N,LHS,RHS,cell_area,flag.case);
     
     if iter == iterations && iter1 == iterations1
-        save('./Filer/PressurePlotDataDLA_','p_darcyEx','p_networkEx','Tree','TNinfo','D','cell_center','boundary_cells','Bv_darcy');
+        save('./Filer/PressurePlotDataRRT','p_darcyEx','p_networkEx','Tree','TNinfo','D','cell_center','boundary_cells','Bv_darcy');
     end
 
     SystemTestEx(Tree,TNlogic,TNinfo,mu,k,p_darcyEx,p_networkEx,q_networkEx,Grad_D,boundary_cells,cell_area,D_bvs,K_N,MacroTermIndexes,MicroTermIndexes)

@@ -11,6 +11,10 @@ for i1 = 1 : 3
 end
 for i2 = 1 : numel(z)
     coords=v(c{i2},:);
-    patch(coords(:,1),coords(:,2),col(i2,:));
+    patch(coords(:,1),coords(:,2),[1 1 1])
+    %patch(coords(:,1),coords(:,2),col(i2,:));
     hold on
+end
+coords1=v(c{1},:);
+patch(coords1(:,1),coords1(:,2),[0.4444    0.4444    0.4444])
 end

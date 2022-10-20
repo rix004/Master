@@ -408,65 +408,7 @@ if strcmp(ThisFigure, 'KTradiusrateFIG')
     set(yh,'position',p);
 end
 
-%%%%%%%%%%%%%%%%%%
-%%%% K^T VS R %%%%
-%%%%%%%%%%%%%%%%%%
-if strcmp(ThisFigure,'KTvsR')
-    figure()
-    indata = load('KTvsR_DLA4000');
-    map = turbo(7);
-    % med map = turbo(7): map(6) = rød, map(4) = grønn, map(2) = blå
-    %map = turbo(size(indata.kT,2));
-for iter = 1:size(indata.kT,2)
-    plot(indata.r(indata.NotZeroVals(:,iter)==1,iter),indata.kT(indata.NotZeroVals(:,iter)==1,iter),'.','MarkerSize',20,'Color',map(6,:));
-    hold on
-end
-%set(gca,'YScale','log');
-ylim([min(indata.kT) max(indata.kT)])
-xlim([0 max(max(indata.r))])
-ylabel('K^T [s/Pa]','FontSize',axisfontsize)
-xlabel('R [mm]','FontSize',axisfontsize)
-end
 
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-%%%% Compare pressure solution %%%%
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-if strcmp(ThisFigure,'PressureAndDeviation')
-indata = load('PressurePlotData');
-h1 = figure('Name','Pressure in Darcy domain');
-D = indata.D;
-% Exact model
-subplot(1,2,1)
-[xq,yq]=meshgrid(D(1):0.1:D(2), D(3):0.1:D(4));
-p_points = [indata.cell_center;indata.boundary_cells(:,1:2);[D(1) D(3)];[D(1) D(4)];[D(2) D(3)]; [D(2) D(4)]];
-p_values = [indata.p_darcyEx;indata.Bv_darcy*ones(size(indata.boundary_cells,1)+4,1)];
-vq = griddata(p_points(:,1),p_points(:,2),p_values,xq,yq);
-surf(xq,yq,vq)
-title('Exact model','FontSize',15)
-xlabel('x','FontSize',15)
-ylabel('y','FontSize',15)
-zlabel('p^{D}_h','FontSize',13,'Rotation',0)
-zh = get(gca,'zlabel');
-p = get(zh,'position');
-p(1) = 0.5*p(1) ;
-set(zh,'position',p)
-
-% Deviation (%)
-subplot(1,2,2)
-p_points = [indata.cell_center;indata.boundary_cells(:,1:2);[D(1) D(3)];[D(1) D(4)];[D(2) D(3)]; [D(2) D(4)]];
-p_values = [100*(indata.p_darcyCoarse-indata.p_darcyEx)./indata.p_darcyEx;indata.Bv_darcy*zeros(size(indata.boundary_cells,1)+4,1)];
-vq = griddata(p_points(:,1),p_points(:,2),p_values,xq,yq);
-surf(xq,yq,vq)
-title('Error','FontSize',15)
-xlabel('x','FontSize',15)
-ylabel('y','FontSize',15)
-zlabel('Dev (%)','FontSize',13,'Rotation',0)
-% zh = get(gca,'zlabel');
-% p = get(zh,'position')
-% p(3) = 0.1*p(3) ;
-% set(zh,'position',p)
-colormap jet
-end
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %%%% KT vs. R on deterministic tree with "true radii" %%%%
@@ -532,7 +474,7 @@ if strcmp(ThisFigure,'aVSparticlesDLA')
 map = flip(turbo(7),1);
     for i = 1:5
         if i == 1
-            indata = load('./Filer/KTvsR_DLA1000');
+            indata = load('./Filer/KTvsR_DLA1000')
             data1 = indata;
         elseif i == 2
             indata = load('./Filer/KTvsR_DLA2000');
@@ -624,7 +566,8 @@ map = flip(turbo(7),1);
     %set(gca,'Yscale','log')
     ylabel('log_{10}(K^T [(s \cdot kPA)^{-1}])','FontSize',axisfontsize)
     xlabel('R [mm]','FontSize',axisfontsize)
-    lgd = legend('8000 particles','','','4000 particles','','','2000 particles','','','1000 particles')
+    lgd = legend('8000 particles','','','','','','','','','','4000 particles','','','','','','','','','',...
+        '2000 particles','','','','','','','','','','1000 particles')
     %lgd = legend('','','','1600 particles','2000 particles','500 particles');
     lgd.FontSize = legendfontsize;
     set(gca,'FontSize',15)
@@ -681,6 +624,49 @@ if strcmp(ThisFigure,'PressurePlotNetworkDarcy')
     colormap(darcy_map)
 end
 
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%%% Illustration of exact model %%%%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+if strcmp(ThisFigure,'ExactNetworkModel')
+    indata = load(file);
+    nodes = indata.Tree.nodes;
+    edges = indata.Tree.edges;
+    p_network = indata.p_networkEx;
+    TNinfo = indata.TNinfo;
+    D = indata.D;
+    for i = 1:size(edges,1)
+        x = [nodes(edges(i,2),1) nodes(edges(i,3),1)];
+        y = [nodes(edges(i,2),2) nodes(edges(i,3),2)];
+        pressure = [p_network(edges(i,2)) p_network(edges(i,3))];
+        if nodes(edges(i,3),3) <= 3
+            plot3(x,y,pressure,'-','Color',[0.8500 0.3250 0.0980],'LineWidth',5)
+        else
+            jenny = 1;
+            %plot3(x,y,pressure,'.-','Color',[0 0.4470 0.7410],'LineWidth',2)
+        end
+        if nodes(edges(i,3),3) == 3
+            plot3(nodes(edges(i,3),1),nodes(edges(i,3),2),pressure(2),'.','MarkerSize',30,'Color',[0.8500 0.3250 0.0980])
+%         elseif nodes(edges(i,3),3)==5
+%             plot3(nodes(edges(i,3),1),nodes(edges(i,3),2),pressure(2),'.','MarkerSize',25,'Color',[0 0.4470 0.7410])
+        end
+        hold on
+        grid on
+    end
+    
+    p_map = gray(size(nodes,1)+size(TNinfo,1)*3);
+    network_map = p_map(size(TNinfo,1)*2:end,:);
+    
+    darcy_map = gray(300); %p_map(1:3*size(TNinfo,1),:);
+    
+    [xq,yq]=meshgrid(D(1):0.005:D(2), D(3):0.005:D(4));
+    p_points = [TNinfo(:,1:2);indata.boundary_cells(:,1:2);[D(1) D(3)];[D(1) D(4)];[D(2) D(3)]; [D(2) D(4)]];
+    p_values = [indata.p_darcyEx;indata.Bv_darcy*ones(size(indata.boundary_cells,1)+4,1)];
+    vq = griddata(p_points(:,1),p_points(:,2),p_values,xq,yq);
+    surf(xq,yq,vq)
+    colormap(darcy_map)
+    axis off
+end
+
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %%%% Error plot different values, DLA %%%%
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -688,17 +674,34 @@ if strcmp(ThisFigure,'ErrorPlotDifferentValuesDLA')
     data1 = load('./Filer/DLAerror_KD_and_Nparticles_1');
     data2 = load('./Filer/DLAerror_KD_and_Nparticles_2');
     data3 = load('./Filer/DLAerror_KD_and_Nparticles_3');
+    data4 = load('./Filer/DLAerror_KD_and_Nparticles_4');
+    data5 = load('./Filer/DLAerror_KD_and_Nparticles_5');
+    data6 = load('./Filer/DLAerror_KD_and_Nparticles_6');
+    data7 = load('./Filer/DLAerror_KD_and_Nparticles_7');
+    data8 = load('./Filer/DLAerror_KD_and_Nparticles_8');
+    data9 = load('./Filer/DLAerror_KD_and_Nparticles_9');
+    data10 = load('./Filer/DLAerror_KD_and_Nparticles_10');
+
     x = data1.x(3:end,:);
     e1 = data1.e_rel(3:end,:);
     e2 = data2.e_rel(3:end,:);
     e3 = data3.e_rel(3:end,:);
+    e4 = data4.e_rel;
+    e5 = data5.e_rel;
+    e6 = data6.e_rel;
+    e7 = data7.e_rel;
+    e8 = data8.e_rel;
+    e9 = data9.e_rel;
+    e10 = data10.e_rel;;
+
 
     data_mean = zeros(size(x));
     data_std = zeros(size(x));
     for i = 1:size(x,1)
         for j = 1:size(x,2)
-            data_mean(i,j)=mean([e1(i,j);e2(i,j);e3(i,j)]);
-            data_std(i,j)=std([e1(i,j);e2(i,j);e3(i,j)]);
+            e_vect = [e1(i,j);e2(i,j);e3(i,j);e4(i,j);e5(i,j);e6(i,j);e7(i,j);e8(i,j);e9(i,j);e10(i,j)];
+            data_mean(i,j)=mean(e_vect);
+            data_std(i,j)=std(e_vect);
         end
     end
     
