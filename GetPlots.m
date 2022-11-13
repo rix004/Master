@@ -1,5 +1,5 @@
 % Get plots
-for i = 7:9
+for i = 11:12
     if i == 1
         
         Plots('TPFAConvergenceVoronoi','./Filer/L2errorData')
@@ -38,7 +38,7 @@ for i = 7:9
 
     elseif i == 10
 
-        Plots('ErrorPlot_alfaR_M','./Filer/RealRadiiSetup')
+        Plots('ErrorPlot_realradii','./Filer/KTvsR_Test_TrueRadii')
 
     elseif i == 11
 

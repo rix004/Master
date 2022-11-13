@@ -6,19 +6,19 @@ iterations1 = 1;
 TN = 1;
 
 % Domain
-%D = [0 5 0 5/sqrt(2)];
-D = [0 1 0 1];
+D = [0 5 0 5/sqrt(2)];
+%D = [0 1 0 1];
 D_area = (D(2)-D(1))*(D(4)-D(3));
 
 % Deterministic tree data
 RootNode = [0.5*(D(2)-D(1)) 0];
-DT.Levels = 2;
+DT.Levels = 4;
 DT.StartPos = RootNode;
 DT.StartAngle = 90;
 DT.RotationAngle = 90;
-DT.TrunkRadius = 0.05;    % mm
+DT.TrunkRadius = 0.5;    % mm
 DT.RadiusRate = 0.7;
-DT.TrunkLength = 1/sqrt(2)/2; %mm
+DT.TrunkLength = 5/sqrt(2)/2; %mm
 DT.LengthRate = 1/sqrt(2);
 DT.RootNodeIdx = 1;
 
@@ -29,7 +29,7 @@ RandomTree.Ncells = 100;
 RandomTree.TerminalRadius = 0.004;
 
 % DLA tree data
-DLA.Nparticles = 1000;
+DLA.Nparticles = 16000;
 DLA.RootRadius = 0.5;
 DLA.TerminalRadius = 0.004;
 DLA.version = 1;
@@ -40,7 +40,7 @@ for iter1 = 1:iterations1
     M = DT.Levels -1;
     CutLevel = 1;
     trees = {'Deterministic','Random','Combinated','DLA'};
-    ChosenTree = trees{4};
+    ChosenTree = trees{1};
     Tree = ChooseTree(ChosenTree,RandomTree,DT,DLA,D);
     nodes = Tree.nodes; edges = Tree.edges;
     if strcmp(ChosenTree,'Deterministic') || strcmp(ChosenTree,'Combinated')
@@ -85,7 +85,6 @@ for iter1 = 1:iterations1
         
         power = log(RootRadius/TerminalRadius)/(max(Tree.nodes(:,3))-1);
         RadiusRate = exp(power);
-        1/RadiusRate
         for i = 2:length(NodeLevels)
             edge = find(Tree.edges(:,3)==i);
             edgerad = TerminalRadius*RadiusRate^(NodeLevels(i));
@@ -97,10 +96,11 @@ for iter1 = 1:iterations1
      
     end 
 
-    %DrawTree(Tree,10,[0.8500, 0.3250, 0.0980],D);
+    DrawTree(Tree,10,[0.8500, 0.3250, 0.0980],D);
 
     %%% Voronoi diagram %%%
-    [cells, vertices,orig_cells] = VoronoiDiagram(TNinfo(:,1:2),[D(1) D(1) D(2) D(2) D(1);D(3) D(4) D(4) D(3) D(3)]');
+    %[cells, vertices,orig_cells] = VoronoiDiagram(TNinfo(:,1:2),[D(1) D(1) D(2) D(2) D(1);D(3) D(4) D(4) D(3) D(3)]');
+    [cells, vertices] = VoronoiDiagram(TNinfo(:,1:2),[D(1) D(1) D(2) D(2) D(1);D(3) D(4) D(4) D(3) D(3)]');
 %     
     %%% Parameters %%%
     mu = 3E-6;                                        % viscosity (Ns/mm^2)
@@ -163,30 +163,31 @@ if strcmp(ChosenTree,'Deterministic')
     %save('TestDETtree','cells','vertices','K_T','Tree','VisibleTree','MicroTermIndexes','MacroTermIndexes','D','TN')
     % save('KTvsDeltaRData','rr','TrueKT');
     % save('AnalyticVScompKT1','NotZeroVals','kT','r','TrueKT')
-    save('KT_Test_TrueRadii','kT_DET','Numb_levels');
+    % save('KT_Test_TrueRadii','kT_DET','Numb_levels');
     %Plots('KTvsRDET_trueradii');
 elseif strcmp(ChosenTree,'DLA')
+    jenny = 1;
     %%% Impact field plot %%%
-save('TestDLAtree','cells','vertices','K_T','Tree','VisibleTree','MicroTermIndexes','MacroTermIndexes','D','TN')
-    if DLA.Nparticles == 2000
-        save('KTvsR_DLA2000','kT','NotZeroVals','r','cell_area');
-    elseif DLA.Nparticles == 4000
-        save('KTvsR_DLA4000','kT','NotZeroVals','r','cell_area');
-    elseif DLA.Nparticles == 8000
-        save('KTvsR_DLA8000','kT','NotZeroVals','r','cell_area');
-    elseif DLA.Nparticles == 100
-        save('KTvsR_DLA100','kT','NotZeroVals','r','cell_area');
-    elseif DLA.Nparticles == 200
-        save('KTvsR_DLA200','kT','NotZeroVals','r','cell_area');
-    elseif DLA.Nparticles == 500
-        save('KTvsR_DLA500','kT','NotZeroVals','r','cell_area');
-    elseif DLA.Nparticles == 1000
-        save('KTvsR_DLA1000','kT','NotZeroVals','r','cell_area');
-    elseif DLA.Nparticles == 250
-        save('KTvsR_DLA250','kT','NotZeroVals','r','cell_area');
-    elseif DLA.Nparticles == 16000
-        save('KTvsR_DLA16000','kT','NotZeroVals','r','cell_area');
-    end
+    %save('TestDLAtree','cells','vertices','K_T','Tree','VisibleTree','MicroTermIndexes','MacroTermIndexes','D','TN')
+%     if DLA.Nparticles == 2000
+%         save('KTvsR_DLA2000','kT','NotZeroVals','r','cell_area');
+%     elseif DLA.Nparticles == 4000
+%         save('KTvsR_DLA4000','kT','NotZeroVals','r','cell_area');
+%     elseif DLA.Nparticles == 8000
+%         save('KTvsR_DLA8000','kT','NotZeroVals','r','cell_area');
+%     elseif DLA.Nparticles == 100
+%         save('KTvsR_DLA100','kT','NotZeroVals','r','cell_area');
+%     elseif DLA.Nparticles == 200
+%         save('KTvsR_DLA200','kT','NotZeroVals','r','cell_area');
+%     elseif DLA.Nparticles == 500
+%         save('KTvsR_DLA500','kT','NotZeroVals','r','cell_area');
+%     elseif DLA.Nparticles == 1000
+%         save('KTvsR_DLA1000','kT','NotZeroVals','r','cell_area');
+%     elseif DLA.Nparticles == 250
+%         save('KTvsR_DLA250','kT','NotZeroVals','r','cell_area');
+%     elseif DLA.Nparticles == 16000
+%         save('KTvsR_DLA16000','kT','NotZeroVals','r','cell_area');
+%     end
 elseif strcmp(ChosenTree,'Combinated')
     save('TestRRTtree','cells','vertices','K_T','Tree','VisibleTree','MicroTermIndexes','MacroTermIndexes','D','TN')
     Plots('ImpactFieldAndUnstructuredTree','TestRRTtree')

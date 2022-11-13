@@ -179,6 +179,36 @@ if strcmp(ThisFigure,'PeacemanCorrection')
     axis(D)
 end
 
+%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%%% DeterministicTree %%%%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%
+if strcmp(ThisFigure,'DeterministicTree')
+    indata = load('./Filer/DeterministicTreeToDraw.mat');
+    DrawTree(indata.Tree,200,'b',indata.D)
+    plot(indata.Tree.nodes(1,1),indata.Tree.nodes(1,2),'.','MarkerSize',40,'Color',[0.8500,0.3250, 0.0980])
+    axis off
+end
+
+%%%%%%%%%%%%%%%%%%
+%%%% DLA tree %%%%
+%%%%%%%%%%%%%%%%%%
+if strcmp(ThisFigure,'DLATree')
+    indata = load('./Filer/DLATreeToDraw.mat');
+    DrawTree(indata.Tree,150,'b',indata.D)
+    plot(0.503,0.497,'.','MarkerSize',30,'Color',[0.8500,0.3250, 0.0980])
+    axis off
+end
+
+%%%%%%%%%%%%%
+%%%% RRT %%%%
+%%%%%%%%%%%%%
+if strcmp(ThisFigure,'RRT')
+    indata = load('./Filer/RRTToDraw.mat');
+    DrawTree(indata.Tree,150,'b',indata.D)
+    plot(indata.Tree.nodes(1,1),indata.Tree.nodes(1,2),'.','MarkerSize',40,'Color',[0.8500,0.3250, 0.0980])
+    axis off
+end
+
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %%%% Tree and impact field on same figure %%%%
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -225,12 +255,12 @@ if strcmp(ThisFigure,'ErrorPlot_KD_deltam')
             plot(indata.delta_m(:,j),indata.error(:,j)/2,'.-','MarkerSize',25,'LineWidth',3.5)
             hold on
         else
-            plot(indata.delta_m(:,j),indata.error(:,j),'.-','MarkerSize',25,'LineWidth',1.5)
+            plot(indata.delta_m(:,j),indata.error(:,j)/2,'.-','MarkerSize',25,'LineWidth',1.5)
             hold on
         end
     end
     set(gca,'FontSize',15);
-    xlabel('Δm','FontSize',axisfontsize)
+    xlabel('L_{M} - L_{M''}','FontSize',axisfontsize)
     ylabel('e_{rel}','FontSize',axisfontsize,'Rotation',90)
     set(gca,'YScale','log');
     yh = get(gca,'ylabel');
@@ -238,8 +268,8 @@ if strcmp(ThisFigure,'ErrorPlot_KD_deltam')
     p(1) =p(1)*1;
     set(yh,'position',p);
     xticks(indata.delta_m(:,1))
-    %lgd = legend('K^D = 1000','K^D = 100','K^D = 10','K^D = 1','K^D = 0.1','Location','southeast');
-    %lgd.FontSize = legendfontsize;
+%     lgd = legend('K^D = 1000','K^D = 100','K^D = 10','K^D = 1','K^D = 0.1','Location','southeast');
+%     lgd.FontSize = legendfontsize;
     grid on
 end
 
@@ -251,7 +281,7 @@ if strcmp(ThisFigure,'ErrorPlot_alfaR_KD')
             plot(indata.delta_m(:,j),indata.error(:,j)/2,'.-','MarkerSize',25,'LineWidth',3.5)
             hold on
         else
-            plot(indata.delta_m(:,j),indata.error(:,j),'.-','MarkerSize',25,'LineWidth',1.5-0*j)
+            plot(indata.delta_m(:,j),indata.error(:,j)/2,'.-','MarkerSize',25,'LineWidth',1.5-0*j)
             hold on
         end
     end
@@ -277,7 +307,7 @@ if strcmp(ThisFigure,'ErrorPlot_M_deltaM')
         hold on
     end
     set(gca,'FontSize',15);
-    xlabel('Δm','FontSize',axisfontsize)
+    xlabel('L_{M} - L_{M''}','FontSize',axisfontsize)
     ylabel('e_{rel}','FontSize',axisfontsize,'Rotation',90)
     set(gca,'YScale','log');
     yh = get(gca,'ylabel');
@@ -370,10 +400,10 @@ if strcmp(ThisFigure, 'TrueVScodeKT')
     ylabel('K^{T} [(s\cdot kPa)^{-1}]','FontSize',axisfontsize)
     yyaxis right
     ylim([min(max(indata.kT))-0.1*min(max(indata.kT)) max(max(indata.kT))+0.3*max(max(indata.kT))])
-    ylabel('Δm','FontSize',axisfontsize,'Rotation',0)
+    ylabel('L_{M}-L_{M''}','FontSize',axisfontsize)
     yh = get(gca,'ylabel');
     p = get(yh,'position');
-    p(1) =p(1)*1.1;
+    p(1) =p(1)*1.055;
     set(yh,'position',p);
     yticks(sort(indata.TrueKT));
     yticklabels({'8','','','','4','3','2','1'}');
@@ -390,15 +420,14 @@ if strcmp(ThisFigure, 'KTradiusrateFIG')
     figure
     indata = load(file);
     map=turbo(size(indata.TrueKT,1));
-    indata.TrueKT
     for j = 1:size(indata.TrueKT,1)
-    plot(indata.rr(j,:),indata.TrueKT(j,:),'.-','MarkerSize',20,'LineWidth',5-0.5*j,'Color',map(j,:))
+    plot(indata.rr(j,:),indata.TrueKT(j,:),'.-','MarkerSize',20,'LineWidth',1.5,'Color',map(j,:))
     hold on
     end
     xlabel('α_r','FontSize',axisfontsize)
     ylabel('K^T [(s\cdot kPa)^{-1}]','FontSize',axisfontsize)
-    lgd = legend('Δm = 1','Δm = 2','Δm = 3','Δm = 4','Δm = 5','Δm = 6','Δm = 7','Δm = 8','Location','southeast');
-    lgd.FontSize = axisfontsize-1;
+    lgd = legend('L_{M}-L_{M''} = 1','L_{M}-L_{M''} = 2','L_{M}-L_{M''} = 3','L_{M}-L_{M''} = 4','L_{M}-L_{M''} = 5','L_{M}-L_{M''} = 6','L_{M}-L_{M''} = 7','L_{M}-L_{M''} = 8','Location','southeast');
+    lgd.FontSize = axisfontsize-2;
     set(gca,'Yscale','log')
     grid on
     yh = get(gca,'ylabel');
@@ -450,7 +479,7 @@ if strcmp(ThisFigure,'KTvsRDLAfig')
 end
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-%%%% Coefficients vs. radiusrate  %%%%%%%
+%%%% Coefficient vs. particles DLA  %%%%
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 if strcmp(ThisFigure,'aVSparticlesDLA')
 map = flip(turbo(7),1);
@@ -476,7 +505,7 @@ map = flip(turbo(7),1);
             r_points = [r_points;indata.r(:,j)];
             kt_points = [kt_points;indata.kT(:,j)];
         end
-        linreg = fitlm(r_points,log10(kt_points));
+        linreg = fitlm(r_points,log10(kt_points))
         a_vect(i)=linreg.Coefficients.Estimate(2);
         b_vect(i)=linreg.Coefficients.Estimate(1);
         p_vect1(i)=linreg.Coefficients.pValue(2);
@@ -549,7 +578,7 @@ map = flip(turbo(7),1);
     ylabel('log_{10}(K^T [(s \cdot kPA)^{-1}])','FontSize',axisfontsize)
     xlabel('R [mm]','FontSize',axisfontsize)
     lgd = legend('8000 particles','','','','','','','','','','4000 particles','','','','','','','','','',...
-        '2000 particles','','','','','','','','','','1000 particles')
+        '2000 particles','','','','','','','','','','1000 particles');
     %lgd = legend('','','','1600 particles','2000 particles','500 particles');
     lgd.FontSize = legendfontsize;
     set(gca,'FontSize',15)
@@ -571,7 +600,7 @@ if strcmp(ThisFigure,'PressurePlotNetworkDarcy')
         x = [nodes(edges(i,2),1) nodes(edges(i,3),1)];
         y = [nodes(edges(i,2),2) nodes(edges(i,3),2)];
         pressure = [p_network(edges(i,2)) p_network(edges(i,3))];
-        plot3(x,y,pressure,'.-','Color',[0 0 0],'LineWidth',edges(i,4)*10)
+        plot3(x,y,pressure,'.-','Color',[0 0 0],'LineWidth',edges(i,4)*100)
         hold on
         grid on
     end
@@ -587,13 +616,48 @@ if strcmp(ThisFigure,'PressurePlotNetworkDarcy')
         plot3(x,y,pressure,'.','Color',network_map(ind,:),'MarkerSize',20);
         hold on
     end
-    zlabel('Node pressure')
+    zlabel('Node pressure','FontSize',axisfontsize)
+    xlabel('x','FontSize',axisfontsize)
+    ylabel('y','FontSize',axisfontsize)
     
     darcy_map = p_map(1:3*size(TNinfo,1),:);
     
     [xq,yq]=meshgrid(D(1):0.05:D(2), D(3):0.05:D(4));
     p_points = [TNinfo(:,1:2);indata.boundary_cells(:,1:2);[D(1) D(3)];[D(1) D(4)];[D(2) D(3)]; [D(2) D(4)]];
     p_values = [indata.p_darcyEx;indata.Bv_darcy*ones(size(indata.boundary_cells,1)+4,1)];
+    vq = griddata(p_points(:,1),p_points(:,2),p_values,xq,yq);
+    surf(xq,yq,vq)
+    colormap(darcy_map)
+    axis tight
+end
+
+if strcmp(ThisFigure,'PressurePlotNetworkDarcyCoarse')
+    indata = load(file);
+    figure('Name','Pressure plot');
+    nodes = indata.DETtree.nodes;
+    edges = indata.DETtree.edges
+    p_network = indata.p_network;
+    TNinfo = indata.TNinfo;
+    D = indata.D;
+    p_map = autumn(size(nodes,1)+size(TNinfo,1)*3);
+    network_map = p_map(size(TNinfo,1)*2:end,:);
+    for i = 2:size(nodes,1)
+        x = nodes(i,1);
+        y = nodes(i,2);
+        pressure = p_network(i);
+        p_sorted = sort(p_network);
+        ind = find(p_sorted==pressure);
+        ind = ind(1);
+        plot3(x,y,pressure,'.','Color',p_map(end-3,:),'MarkerSize',20);
+        hold on
+    end
+    zlabel('Node pressure')
+    
+    darcy_map = p_map(1:3*size(TNinfo,1),:);
+    
+    [xq,yq]=meshgrid(D(1):0.05:D(2), D(3):0.05:D(4));
+    p_points = [TNinfo(:,1:2);indata.boundary_cells(:,1:2);[D(1) D(3)];[D(1) D(4)];[D(2) D(3)]; [D(2) D(4)]];
+    p_values = [indata.p_darcyCoarse;indata.Bv_darcy*ones(size(indata.boundary_cells,1)+4,1)];
     vq = griddata(p_points(:,1),p_points(:,2),p_values,xq,yq);
     surf(xq,yq,vq)
     colormap(darcy_map)
@@ -614,15 +678,17 @@ if strcmp(ThisFigure,'ExactNetworkModel')
         y = [nodes(edges(i,2),2) nodes(edges(i,3),2)];
         pressure = [p_network(edges(i,2)) p_network(edges(i,3))];
         if nodes(edges(i,3),3) <= 3
-            plot3(x,y,pressure,'-','Color',[0.8500 0.3250 0.0980],'LineWidth',5)
+            %plot3(x,y,pressure,'-','Color',[0.8500 0.3250 0.0980],'LineWidth',5)
+            plot3(x,y,pressure,'.-','Color',[0 0.4470 0.7410],'LineWidth',5)
         else
-            jenny = 1;
-            %plot3(x,y,pressure,'.-','Color',[0 0.4470 0.7410],'LineWidth',2)
+            %jenny = 1;
+            plot3(x,y,pressure,'.-','Color',[0 0.4470 0.7410],'LineWidth',2)
         end
         if nodes(edges(i,3),3) == 3
-            plot3(nodes(edges(i,3),1),nodes(edges(i,3),2),pressure(2),'.','MarkerSize',30,'Color',[0.8500 0.3250 0.0980])
-%         elseif nodes(edges(i,3),3)==5
-%             plot3(nodes(edges(i,3),1),nodes(edges(i,3),2),pressure(2),'.','MarkerSize',25,'Color',[0 0.4470 0.7410])
+            %plot3(nodes(edges(i,3),1),nodes(edges(i,3),2),pressure(2),'.','MarkerSize',30,'Color',[0.8500 0.3250 0.0980])
+            jenny = 2;
+        elseif nodes(edges(i,3),3)==5
+            plot3(nodes(edges(i,3),1),nodes(edges(i,3),2),pressure(2),'.','MarkerSize',25,'Color',[0 0.4470 0.7410])
         end
         hold on
         grid on
@@ -646,28 +712,28 @@ end
 %%%% Error plot different values, DLA %%%%
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 if strcmp(ThisFigure,'ErrorPlotDifferentValuesDLA')
-    data1 = load('./Filer/DLAerror_KD_and_Nparticles_1');
-    data2 = load('./Filer/DLAerror_KD_and_Nparticles_2');
-    data3 = load('./Filer/DLAerror_KD_and_Nparticles_3');
-    data4 = load('./Filer/DLAerror_KD_and_Nparticles_4');
-    data5 = load('./Filer/DLAerror_KD_and_Nparticles_5');
-    data6 = load('./Filer/DLAerror_KD_and_Nparticles_6');
-    data7 = load('./Filer/DLAerror_KD_and_Nparticles_7');
-    data8 = load('./Filer/DLAerror_KD_and_Nparticles_8');
-    data9 = load('./Filer/DLAerror_KD_and_Nparticles_9');
-    data10 = load('./Filer/DLAerror_KD_and_Nparticles_10');
+    data1 = load('./Filer/DLAerror1');
+    data2 = load('./Filer/DLAerror2');
+    data3 = load('./Filer/DLAerror3');
+    data4 = load('./Filer/DLAerror4');
+    data5 = load('./Filer/DLAerror5');
+    data6 = load('./Filer/DLAerror6');
+    data7 = load('./Filer/DLAerror7');
+    data8 = load('./Filer/DLAerror8');
+    data9 = load('./Filer/DLAerror9');
+    data10 = load('./Filer/DLAerror10');
 
-    x = data1.x(3:end,:);
-    e1 = data1.e_rel(3:end,:);
-    e2 = data2.e_rel(3:end,:);
-    e3 = data3.e_rel(3:end,:);
+    x = data1.x;
+    e1 = data1.e_rel;
+    e2 = data2.e_rel;
+    e3 = data3.e_rel;
     e4 = data4.e_rel;
     e5 = data5.e_rel;
     e6 = data6.e_rel;
     e7 = data7.e_rel;
     e8 = data8.e_rel;
     e9 = data9.e_rel;
-    e10 = data10.e_rel;;
+    e10 = data10.e_rel;
 
 
     data_mean = zeros(size(x));
@@ -702,6 +768,7 @@ if strcmp(ThisFigure,'ErrorPlotDifferentValuesDLA')
     p = get(yh,'position');
     p(1) =p(1)*1;
     set(yh,'position',p);
+    ylim([1E-6 1E0]);
     %xticks(indata.x(:,1))
     %lgd = legend('K^D = 1000','','K^D = 100','','K^D = 10','','K^D = 1','','K^D = 0.1','','Location','northeast');
     %lgd.FontSize = legendfontsize;
@@ -712,16 +779,16 @@ end
 %%%% Error plot different values, RRT %%%%
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 if strcmp(ThisFigure,'ErrorPlotDifferentValuesRRT')
-    data1 = load('./Filer/RRTerror_KD_ncells_1');
-    data2 = load('./Filer/RRTerror_KD_ncells_2');
-    data3 = load('./Filer/RRTerror_KD_ncells_3');
-    data4 = load('./Filer/RRTerror_KD_ncells_4');
-    data5 = load('./Filer/RRTerror_KD_ncells_5');
-    data6 = load('./Filer/RRTerror_KD_ncells_6');
-    data7 = load('./Filer/RRTerror_KD_ncells_7');
-    data8 = load('./Filer/RRTerror_KD_ncells_8');
-    data9 = load('./Filer/RRTerror_KD_ncells_9');
-    data10 = load('./Filer/RRTerror_KD_ncells_10');
+    data1 = load('./Filer/RRTerror1');
+    data2 = load('./Filer/RRTerror2');
+    data3 = load('./Filer/RRTerror3');
+    data4 = load('./Filer/RRTerror4');
+    data5 = load('./Filer/RRTerror5');
+    data6 = load('./Filer/RRTerror6');
+    data7 = load('./Filer/RRTerror7');
+    data8 = load('./Filer/RRTerror8');
+    data9 = load('./Filer/RRTerror9');
+    data10 = load('./Filer/RRTerror10');
     x = data1.x;
     e1 = data1.e_rel;
     e2 = data2.e_rel;
@@ -739,6 +806,10 @@ if strcmp(ThisFigure,'ErrorPlotDifferentValuesRRT')
         for j = 1:size(x,2)
             data_mean(i,j)=mean([e1(i,j);e2(i,j);e3(i,j);e4(i,j);e5(i,j);e6(i,j);e7(i,j);e8(i,j);e9(i,j);e10(i,j)]);
             data_std(i,j)=std([e1(i,j);e2(i,j);e3(i,j);e4(i,j);e5(i,j);e6(i,j);e7(i,j);e8(i,j);e9(i,j);e10(i,j)]);
+%             if data_mean(i,j)<data_std(i,j)
+%                 data_std(i,j)=data_mean(i,j)-0.0000000001;
+%             end
+
         end
     end
     rgb=zeros(size(x,2),3);
@@ -751,16 +822,21 @@ if strcmp(ThisFigure,'ErrorPlotDifferentValuesRRT')
     for k = 1:size(x,2)
         plot(x(:,k),data_mean(:,k),'.-','LineWidth',2,'MarkerSize',15);
         hold on
-        patch([x(:,k); flipud(x(:,k))],[data_mean(:,k)-data_std(:,k); flipud(data_mean(:,k)+data_std(:,k))],rgb(k,:),'FaceAlpha',0.3,'EdgeColor','none');
-        hold on
-        [x(:,k); flipud(x(:,k))]
-        [data_mean(:,k)-data_std(:,k); flipud(data_mean(:,k)+data_std(:,k))]
+        if k == 2
+            patch([x(:,k); flipud(x(:,k))],[data_mean(:,k); flipud(data_mean(:,k)+data_std(:,k))],rgb(k,:),'FaceAlpha',0.3,'EdgeColor','none');
+            hold on
+        else
+            patch([x(:,k); flipud(x(:,k))],[data_mean(:,k)-data_std(:,k); flipud(data_mean(:,k)+data_std(:,k))],rgb(k,:),'FaceAlpha',0.3,'EdgeColor','none');
+            hold on
+        end
     end
     
     set(gca,'FontSize',15);
     xlabel('Number of terminal nodes','FontSize',axisfontsize)
     ylabel('e_{rel}','FontSize',axisfontsize,'Rotation',90)
-    ylim([-0.02 0.45]);
+    ylim([1E-6 1E0])
+    %ylim([-0.001 0.12]);
+    xlim([100 1600])
     set(gca,'YScale','log');
     %xticks(indata.x(:,1))
     lgd = legend('K^D = 1000','','K^D = 100','','K^D = 10','','K^D = 1','','K^D = 0.1','','Location','northwest');
@@ -773,6 +849,7 @@ end
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 if strcmp(ThisFigure,'aVSparticlesRRT')
 map = flip(turbo(7),1);
+figure()
     for i = 1:9
         if i == 1
             indata = load('./Filer/KTvsR_RRT100');
@@ -802,7 +879,7 @@ map = flip(turbo(7),1);
             r_points = [r_points;indata.r(:,j)];
             kt_points = [kt_points;indata.kT(:,j)];
         end
-        linreg = fitlm(r_points,log10(kt_points));
+        linreg = fitlm(r_points,log10(kt_points))
         a_vect(i)=linreg.Coefficients.Estimate(2);
         b_vect(i)=linreg.Coefficients.Estimate(1);
         p_vect1(i)=linreg.Coefficients.pValue(2);
@@ -843,7 +920,7 @@ map = flip(turbo(7),1);
     hold on
 
     y1 = @(x) a_vect(1)*X +b_vect(1);
-
+% 
     plot(X,y1(X),'-','LineWidth',4,'Color',map1(254,:));
     hold on
     plot(X,y2(X),'-','LineWidth',4,'Color',map1(160,:));
@@ -853,6 +930,7 @@ map = flip(turbo(7),1);
     
     %set(gca,'Yscale','log')
     xlim([0 0.8])
+    ylim([-8 8])
     ylabel('log_{10}(K^T [(s \cdot kPA)^{-1}])','FontSize',axisfontsize)
     xlabel('R [mm]','FontSize',axisfontsize)
     lgd = legend('1600 terminal nodes','400 terminal nodes','1400 terminal nodes','','','');

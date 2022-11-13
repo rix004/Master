@@ -1,46 +1,45 @@
 %clc;
 close all
 clear;
-iterations = 1;
-iterations1 = 1;
+iterations = 5;
+iterations1 = 5;
+
+% Domain
+%D = [0 5 0 5/sqrt(2)];
+D = [0 1 0 1];
+D_area = (D(2)-D(1))*(D(4)-D(3));
 
 % Deterministic tree data
 RootNode = [0.5 0];
-DT.Levels = 4;
+DT.Levels = 2;
 DT.StartPos = RootNode;
 DT.StartAngle = 90;
-DT.RotationAngle = 60;
-DT.TrunkRadius = 0.05;    % mm
+DT.RotationAngle = 90;
+DT.TrunkRadius = 0.5;    % mm
 DT.RadiusRate = 0.7;
-DT.TrunkLength = 0.25; %/sqrt(2)/2; %mm
+DT.TrunkLength = 5/sqrt(2)/2; %mm
 DT.LengthRate = 1/sqrt(2);
 
 % Random tree data
 RandomTree.TrunkRadius = DT.TrunkRadius*DT.RadiusRate^DT.Levels;
-RandomTree.RadiusRate = 0.8;
-RandomTree.Ncells = 50;
+RandomTree.RadiusRate = 0.5;
+RandomTree.Ncells = 500;
 RandomTree.TerminalRadius = 0.004;
 
 % DLA tree data
-DLA.Nparticles = 250;
+DLA.Nparticles = 16000;
 DLA.RootRadius = 0.5;
 DLA.TerminalRadius = 0.004;
-DLA.version = 9;
-
-% Domain
-D = [0 1 0 1/sqrt(2)];
-%D = [0 1 0 1];
-D_area = (D(2)-D(1))*(D(4)-D(3));
-
+DLA.version = 10;
 
 % Make tree
 for iter1 = 1:iterations1
-    %RandomTree.Ncells = 100;
-    DLA.Nparticles = 8000;
+    RandomTree.Ncells = 100;
+    %DLA.Nparticles = 1000;
     for iter = 1:iterations
-    CutLevel = 3;
+    CutLevel = 1;
     trees = {'Deterministic','Random','Combinated','DLA'};
-    ChosenTree = trees{3};
+    ChosenTree = trees{1};
     Tree = ChooseTree(ChosenTree,RandomTree,DT,DLA,D);
     if strcmp(ChosenTree,'Deterministic') || strcmp(ChosenTree,'Combinated')
         VisibleNodes = Tree.nodes(1:2^(CutLevel),:);
@@ -49,6 +48,7 @@ for iter1 = 1:iterations1
         VisibleTree.edges = VisibleEdges;
         VisibleTree.RootNodeIdx = 1;
     elseif strcmp(ChosenTree,'DLA')
+        Tree.edges(1,4)=Tree.edges(1,4)*1000;
         VisibleTree.nodes = Tree.nodes(1:2,:);
         VisibleTree.edges = Tree.edges(1,:);
         VisibleTree.RootNodeIdx = 1;
@@ -59,13 +59,13 @@ for iter1 = 1:iterations1
         InvisibleTree.edges = InvisibleEdges;
         InvisibleTree.RootNodeIdx = 1;
     end
-    
+    Tree.edges(1,4)=Tree.edges(1,4)*1000;
     nodes = Tree.nodes; edges = Tree.edges;
 
     % Draw tree
     
     if iter1 == iterations1 && iter == iterations
-        DrawTree(Tree,2,[0.8500, 0.3250, 0.0980],D);
+%        DrawTree(Tree,2,[0.8500, 0.3250, 0.0980],D);
 %         DrawTree(Tree,2,[0, 0, 0],D);
 %         plot(0.5,0,'diamond','MarkerSize',10,'Color',[0.9290 0.6940 0.1250],'MarkerFaceColor',[0.9290 0.6940 0.1250])
 %         plot(nodes(2:4,1),nodes(2:4,2),'o','MarkerSize',10,'Color',[0.8500 0.3250 0.0980],'MarkerFaceColor',[0.8500 0.3250 0.0980]);
@@ -86,15 +86,15 @@ for iter1 = 1:iterations1
     %%% Parameters %%%
     mu = 3E-6;                                        % viscosity (Ns/mm^2)
     if iter1 == 1
-        k = 3E-4;                                     % permeability (mm^2)
+        k = 3E-3;                                     % permeability (mm^2)
     elseif iter1 == 2
-        k = 3E-5;
+        k = 3E-4;
     elseif iter1 == 3
-        k = 3E-6;
+        k = 3E-5;
     elseif iter1 == 4
-        k = 3E-7;
+        k = 3E-6;
     elseif iter1 == 5
-        k = 3E-8;
+        k = 3E-7;
     end
     K_N = (pi*edges(:,4).^4./(8*mu*edges(:,1)));      % Conductance
     K_D = k/mu;                                       % Hydraulic conductivity [mm^4/Ns)
@@ -111,19 +111,16 @@ for iter1 = 1:iterations1
     [Grad_D,LHS,D_bvs,RHS,cell_center,cell_edges,cell_area,boundary_cells,bv] = TPFA(cells,vertices,f,K_D,1,Bv_darcy,edges(TNinfo(end,3),4));
     [p_darcyEx,q_networkEx,p_networkEx]=SolveSystemEx(Tree,TNinfo,TNlogic,Dir_network,Neu_network,mu,k,K_N,LHS,RHS,cell_area,flag.case);
     
-    if iter == iterations && iter1 == iterations1
-        save('./Filer/PressurePlotDataRRT','p_darcyEx','p_networkEx','Tree','TNinfo','D','cell_center','boundary_cells','Bv_darcy');
-    end
-
-    SystemTestEx(Tree,TNlogic,TNinfo,mu,k,p_darcyEx,p_networkEx,q_networkEx,Grad_D,boundary_cells,cell_area,D_bvs,K_N,MacroTermIndexes,MicroTermIndexes)
+%     if iter1 == 1 && iter == iterations
+%         save('./Filer/PressurePlotDataRRT_KD03','p_darcyEx','p_networkEx','Tree','TNinfo','D','cell_center','boundary_cells','Bv_darcy');
+%     elseif iter1 == 5 && iter == iterations
+%         save('./Filer/PressurePlotDataRRT_KD07','p_darcyEx','p_networkEx','Tree','TNinfo','D','cell_center','boundary_cells','Bv_darcy');
+%     end
+        SystemTestEx(Tree,TNlogic,TNinfo,mu,k,p_darcyEx,p_networkEx,q_networkEx,Grad_D,boundary_cells,cell_area,D_bvs,K_N,MacroTermIndexes,MicroTermIndexes)
     
     %% Find K_T %%%
     [q_network,p_network]=SolveNetwork(Tree,K_N,TNlogic,-1);
     [K_T,connections] = findKT(edges,cell_area,MicroTermIndexes,MacroTermIndexes,TNinfo,q_network,p_network,mu);
-
-    % Solve system with exact K^T value
-    %[TNinfoDT,TNlogicDT]=FindTerminals(VisibleTree);
-    %[p_darcyCoarse,q_T,q_networkCoarse,p_networkCoarse]=SolveSystemUpS(VisibleTree,TNlogicDT,TNinfoDT,Dir_network,Neu_network,mu,k,K_N,K_T,connections,LHS,RHS,cell_area,flag.case);
 
     %%% Use linear regression %%%
     newK_T = zeros(size(K_T));
@@ -133,20 +130,26 @@ for iter1 = 1:iterations1
 
     % Solve system with kT function
     [TNinfoDT,TNlogicDT]=FindTerminals(VisibleTree);
-
-    [p_darcyCoarse1,q_T,q_network,p_network]=SolveSystemUpS(VisibleTree,TNlogicDT,TNinfoDT,Dir_network,Neu_network,mu,k,K_N,newK_T,connections,LHS,RHS,cell_area,flag.case);
-    
+    DETtree = VisibleTree;
+    [p_darcyCoarse,q_T,q_network,p_network]=SolveSystemUpS(VisibleTree,TNlogicDT,TNinfoDT,Dir_network,Neu_network,mu,k,K_N,newK_T,connections,LHS,RHS,cell_area,flag.case);
+    %save('./Filer/CoarsePressurePlotDataDLA_KD03','p_darcyCoarse','p_network','DETtree','TNinfo','D','cell_center','boundary_cells','Bv_darcy');
+%      if iter1 == 1 && iter == iterations
+%         save('./Filer/CoarsePressurePlotDataRRT_KD03','p_darcyCoarse','p_network','DETtree','TNinfo','D','cell_center','boundary_cells','Bv_darcy');
+%     elseif iter1 == 5 && iter == iterations
+%         save('./Filer/CoarsePressurePlotDataRRT_KD07','p_darcyCoarse','p_network','DETtree','TNinfo','D','cell_center','boundary_cells','Bv_darcy');
+%     end
     %%% Root mean square error %%%
     %e = 0;
     e1 = 0;
     for i = 1:length(p_darcyEx)
         %e = e + (p_darcyEx(i)-p_darcyCoarse(i))^2*cell_area(i);
-        e1 = e1 + (p_darcyEx(i)-p_darcyCoarse1(i))^2*cell_area(i);
+        e1 = e1 + (p_darcyEx(i)-p_darcyCoarse(i))^2*cell_area(i);
     end
     %error(iter,iter1) = sqrt(e/D_area);
-    error1(iter,iter1) = sqrt(e1/D_area);
-    x(iter,iter1)=DLA.Nparticles;
-    DLA.Nparticles= DLA.Nparticles*2;
+    %error1(iter,iter1) = sqrt(e1/D_area);
+    %x(iter,iter1)=RandomTree.Ncells;
+    %DLA.Nparticles= DLA.Nparticles*2;
+    %RandomTree.Ncells = RandomTree.Ncells*2;
     end
     disp(iter1);
 end
@@ -155,9 +158,9 @@ end
 e_rel = error1/(Dir_network-Bv_darcy);
 
 
-%save('./Filer/DLAerror_KD_and_Nparticles_10','e_rel','x');
+%save('./Filer/DLAerror10','e_rel','x');
 
-%save('./Filer/RRTerror_KD_ncells_10','e_rel','x');
+%save('./Filer/RRTerror10','e_rel','x');
 %save('ToDrawDLAtree','Tree','VisibleTree','cells','vertices','D','MicroTermIndexes','MacroTermIndexes','TN','K_T')
 %save ('PressurePlotDataDLA','D','cell_center','boundary_cells','p_darcyEx','Bv_darcy','p_darcyCoarse');
 %Plots('PressureAndDeviation');
