@@ -183,7 +183,7 @@ end
 %%%% DeterministicTree %%%%
 %%%%%%%%%%%%%%%%%%%%%%%%%%%
 if strcmp(ThisFigure,'DeterministicTree')
-    indata = load('./Filer/DeterministicTreeToDraw.mat');
+    indata = load('./Files/DeterministicTreeToDraw.mat');
     DrawTree(indata.Tree,200,'b',indata.D)
     plot(indata.Tree.nodes(1,1),indata.Tree.nodes(1,2),'.','MarkerSize',40,'Color',[0.8500,0.3250, 0.0980])
     axis off
@@ -193,7 +193,7 @@ end
 %%%% DLA tree %%%%
 %%%%%%%%%%%%%%%%%%
 if strcmp(ThisFigure,'DLATree')
-    indata = load('./Filer/DLATreeToDraw.mat');
+    indata = load('./Files/DLATreeToDraw.mat');
     DrawTree(indata.Tree,150,'b',indata.D)
     plot(0.503,0.497,'.','MarkerSize',30,'Color',[0.8500,0.3250, 0.0980])
     axis off
@@ -203,7 +203,7 @@ end
 %%%% RRT %%%%
 %%%%%%%%%%%%%
 if strcmp(ThisFigure,'RRT')
-    indata = load('./Filer/RRTToDraw.mat');
+    indata = load('./Files/RRTToDraw.mat');
     DrawTree(indata.Tree,150,'b',indata.D)
     plot(indata.Tree.nodes(1,1),indata.Tree.nodes(1,2),'.','MarkerSize',40,'Color',[0.8500,0.3250, 0.0980])
     axis off
@@ -446,11 +446,11 @@ if strcmp(ThisFigure,'KTvsRDLAfig')
     minKT = 10000;
     for i = 1:3
         if i == 3
-            indata = load('./Filer/KTvsR_DLA2000');
+            indata = load('./Files/KTvsR_DLA2000');
         elseif i == 2
-            indata = load('./Filer/KTvsR_DLA4000');
+            indata = load('./Files/KTvsR_DLA4000');
         elseif i == 1
-            indata = load('./Filer/KTvsR_DLA8000');
+            indata = load('./Files/KTvsR_DLA8000');
         end
         map = flip(turbo(7),1);
         % med map = flip(turbo(7)): map(6) = blå, map(4) = grønn, map(2) = rød
@@ -485,19 +485,19 @@ if strcmp(ThisFigure,'aVSparticlesDLA')
 map = flip(turbo(7),1);
     for i = 1:5
         if i == 1
-            indata = load('./Filer/KTvsR_DLA1000')
+            indata = load('./Files/KTvsR_DLA1000')
             data1 = indata;
         elseif i == 2
-            indata = load('./Filer/KTvsR_DLA2000');
+            indata = load('./Files/KTvsR_DLA2000');
             data2 = indata;
         elseif i == 3
-            indata = load('./Filer/KTvsR_DLA4000');
+            indata = load('./Files/KTvsR_DLA4000');
             data3 = indata;
         elseif i == 4
-            indata = load('./Filer/KTvsR_DLA8000');
+            indata = load('./Files/KTvsR_DLA8000');
             data4 = indata;
         elseif i == 5
-            indata = load('./Filer/KTvsR_DLA16000');
+            indata = load('./Files/KTvsR_DLA16000');
         end
         r_points = [];
         kt_points = [];
@@ -510,7 +510,7 @@ map = flip(turbo(7),1);
         b_vect(i)=linreg.Coefficients.Estimate(1);
         p_vect1(i)=linreg.Coefficients.pValue(2);
     end
-    save('./Filer/coefficients','a_vect','b_vect');
+    save('./Files/coefficients','a_vect','b_vect');
     % Plot slope vs. nodes
     rr = [1000 2000 4000 8000 16000];
     plot(rr,a_vect,'.-','MarkerSize',20,'LineWidth',2.5,'Color',[0 0 0])
@@ -619,7 +619,7 @@ if strcmp(ThisFigure,'PressurePlotNetworkDarcy')
     zlabel('Node pressure','FontSize',axisfontsize)
     xlabel('x','FontSize',axisfontsize)
     ylabel('y','FontSize',axisfontsize)
-    
+
     darcy_map = p_map(1:3*size(TNinfo,1),:);
     
     [xq,yq]=meshgrid(D(1):0.05:D(2), D(3):0.05:D(4));
@@ -712,16 +712,16 @@ end
 %%%% Error plot different values, DLA %%%%
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 if strcmp(ThisFigure,'ErrorPlotDifferentValuesDLA')
-    data1 = load('./Filer/DLAerror1');
-    data2 = load('./Filer/DLAerror2');
-    data3 = load('./Filer/DLAerror3');
-    data4 = load('./Filer/DLAerror4');
-    data5 = load('./Filer/DLAerror5');
-    data6 = load('./Filer/DLAerror6');
-    data7 = load('./Filer/DLAerror7');
-    data8 = load('./Filer/DLAerror8');
-    data9 = load('./Filer/DLAerror9');
-    data10 = load('./Filer/DLAerror10');
+    data1 = load('./Files/DLAerror1');
+    data2 = load('./Files/DLAerror2');
+    data3 = load('./Files/DLAerror3');
+    data4 = load('./Files/DLAerror4');
+    data5 = load('./Files/DLAerror5');
+    data6 = load('./Files/DLAerror6');
+    data7 = load('./Files/DLAerror7');
+    data8 = load('./Files/DLAerror8');
+    data9 = load('./Files/DLAerror9');
+    data10 = load('./Files/DLAerror10');
 
     x = data1.x;
     e1 = data1.e_rel;
@@ -770,8 +770,8 @@ if strcmp(ThisFigure,'ErrorPlotDifferentValuesDLA')
     set(yh,'position',p);
     ylim([1E-6 1E0]);
     %xticks(indata.x(:,1))
-    %lgd = legend('K^D = 1000','','K^D = 100','','K^D = 10','','K^D = 1','','K^D = 0.1','','Location','northeast');
-    %lgd.FontSize = legendfontsize;
+    lgd = legend('K^D = 1000','','K^D = 100','','K^D = 10','','K^D = 1','','K^D = 0.1','','Location','northeast');
+    lgd.FontSize = legendfontsize;
     grid on
 end
 
@@ -779,16 +779,16 @@ end
 %%%% Error plot different values, RRT %%%%
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 if strcmp(ThisFigure,'ErrorPlotDifferentValuesRRT')
-    data1 = load('./Filer/RRTerror1');
-    data2 = load('./Filer/RRTerror2');
-    data3 = load('./Filer/RRTerror3');
-    data4 = load('./Filer/RRTerror4');
-    data5 = load('./Filer/RRTerror5');
-    data6 = load('./Filer/RRTerror6');
-    data7 = load('./Filer/RRTerror7');
-    data8 = load('./Filer/RRTerror8');
-    data9 = load('./Filer/RRTerror9');
-    data10 = load('./Filer/RRTerror10');
+    data1 = load('./Files/RRTerror1');
+    data2 = load('./Files/RRTerror2');
+    data3 = load('./Files/RRTerror3');
+    data4 = load('./Files/RRTerror4');
+    data5 = load('./Files/RRTerror5');
+    data6 = load('./Files/RRTerror6');
+    data7 = load('./Files/RRTerror7');
+    data8 = load('./Files/RRTerror8');
+    data9 = load('./Files/RRTerror9');
+    data10 = load('./Files/RRTerror10');
     x = data1.x;
     e1 = data1.e_rel;
     e2 = data2.e_rel;
@@ -852,25 +852,25 @@ map = flip(turbo(7),1);
 figure()
     for i = 1:9
         if i == 1
-            indata = load('./Filer/KTvsR_RRT100');
+            indata = load('./Files/KTvsR_RRT100');
             data1 = indata;
         elseif i == 2 
-            indata = load('./Filer/KTvsR_RRT200');
+            indata = load('./Files/KTvsR_RRT200');
         elseif i == 3
-            indata = load('./Filer/KTvsR_RRT400');
+            indata = load('./Files/KTvsR_RRT400');
             data2 = indata;
         elseif i == 4
-            indata = load('./Filer/KTvsR_RRT600');
+            indata = load('./Files/KTvsR_RRT600');
         elseif i == 5
-            indata = load('./Filer/KTvsR_RRT800');
+            indata = load('./Files/KTvsR_RRT800');
         elseif i == 6 
-            indata = load('./Filer/KTvsR_RRT1000');
+            indata = load('./Files/KTvsR_RRT1000');
         elseif i == 7
-            indata = load('./Filer/KTvsR_RRT1200');
+            indata = load('./Files/KTvsR_RRT1200');
         elseif i == 8 
-            indata = load('./Filer/KTvsR_RRT1400');
+            indata = load('./Files/KTvsR_RRT1400');
         elseif i == 9
-            indata = load('./Filer/KTvsR_RRT1600');
+            indata = load('./Files/KTvsR_RRT1600');
             data3 = indata;
         end
         r_points = [];
@@ -885,7 +885,7 @@ figure()
         p_vect1(i)=linreg.Coefficients.pValue(2);
     end
     map1 = turbo(300);
-    save('./Filer/Coefficients_RRT','a_vect','b_vect');
+    save('./Files/Coefficients_RRT','a_vect','b_vect');
     % Plot slope vs. nodes
     rr = [100 200 400 600 800 1000 1200 1400 1600];
     plot(rr,a_vect,'.-','MarkerSize',20,'LineWidth',2.5,'Color',map(3,:))
