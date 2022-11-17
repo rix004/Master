@@ -485,19 +485,19 @@ if strcmp(ThisFigure,'aVSparticlesDLA')
 map = flip(turbo(7),1);
     for i = 1:5
         if i == 1
-            indata = load('./Files/KTvsR_DLA1000')
+            indata = load('./Files/KT_VS_R_DLA/KTvsR_DLA1000')
             data1 = indata;
         elseif i == 2
-            indata = load('./Files/KTvsR_DLA2000');
+            indata = load('./Files/KT_VS_R_DLA/KTvsR_DLA2000');
             data2 = indata;
         elseif i == 3
-            indata = load('./Files/KTvsR_DLA4000');
+            indata = load('./Files/KT_VS_R_DLA/KTvsR_DLA4000');
             data3 = indata;
         elseif i == 4
-            indata = load('./Files/KTvsR_DLA8000');
+            indata = load('./Files/KT_VS_R_DLA/KTvsR_DLA8000');
             data4 = indata;
         elseif i == 5
-            indata = load('./Files/KTvsR_DLA16000');
+            indata = load('./Files/KT_VS_R_DLA/KTvsR_DLA16000');
         end
         r_points = [];
         kt_points = [];
@@ -852,25 +852,25 @@ map = flip(turbo(7),1);
 figure()
     for i = 1:9
         if i == 1
-            indata = load('./Files/KTvsR_RRT100');
+            indata = load('./Files/KT_VS_R/KTvsR_RRT100');
             data1 = indata;
         elseif i == 2 
-            indata = load('./Files/KTvsR_RRT200');
+            indata = load('./Files/KT_VS_R/KTvsR_RRT200');
         elseif i == 3
-            indata = load('./Files/KTvsR_RRT400');
+            indata = load('./Files/KT_VS_R/KTvsR_RRT400');
             data2 = indata;
         elseif i == 4
-            indata = load('./Files/KTvsR_RRT600');
+            indata = load('./Files/KT_VS_R/KTvsR_RRT600');
         elseif i == 5
-            indata = load('./Files/KTvsR_RRT800');
+            indata = load('./Files/KT_VS_R/KTvsR_RRT800');
         elseif i == 6 
-            indata = load('./Files/KTvsR_RRT1000');
+            indata = load('./Files/KT_VS_R/KTvsR_RRT1000');
         elseif i == 7
-            indata = load('./Files/KTvsR_RRT1200');
+            indata = load('./Files/KT_VS_R/KTvsR_RRT1200');
         elseif i == 8 
-            indata = load('./Files/KTvsR_RRT1400');
+            indata = load('./Files/KT_VS_R/KTvsR_RRT1400');
         elseif i == 9
-            indata = load('./Files/KTvsR_RRT1600');
+            indata = load('./Files/KT_VS_R/KTvsR_RRT1600');
             data3 = indata;
         end
         r_points = [];

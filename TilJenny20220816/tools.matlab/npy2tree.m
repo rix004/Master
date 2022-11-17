@@ -42,7 +42,7 @@ for i = 1 : numel(fn)
    end
 end
 
-% % Få over på eget format
+% Translate to my format
 DLAedges(:,1) = tree.segment.L;
 DLAedges(:,2:3)=tree.segment.nodeconn;
 G = graph(DLAedges(:,2),DLAedges(:,3));
@@ -99,23 +99,6 @@ for i = 2:length(NodeLevels)
     DLAtree.edges(edge,4)=edgerad;
 end
 
-% PLOTT TRE
-
-% figure()
-% DrawTree(DLAtree,2,'r',[0.4 0.6 0.4 0.6])
-% for i = 1:size(DLAtree.nodes,1)
-%     plot(DLAtree.nodes(i,1),DLAtree.nodes(i,2),'r.','MarkerSize',10)
-%     text(DLAtree.nodes(i,1),DLAtree.nodes(i,2),num2str(i),'FontSize',14)
-%     hold on
-% end
-% plot(DLAtree.nodes(1,1),DLAtree.nodes(1,2),'*','Color',[0 0 0])
-
-% Erlend sitt plott
-
-% p = plotGraph(tree,'2D', 'nodelabel', false, 'edgelabel', false,'linewidth',2);
-% highlight(p, tree.node.isroot, ...
-%     'Nodecolor', 'r', ...
-%     'MarkerSize', 8)
 
 
 end

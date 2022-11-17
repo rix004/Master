@@ -39,7 +39,7 @@ for iter1 = 1:iterations1
     for iter = 1:iterations
     CutLevel = 1;
     trees = {'Deterministic','Random','Combinated','DLA'};
-    ChosenTree = trees{1};
+    ChosenTree = trees{4};
     Tree = ChooseTree(ChosenTree,RandomTree,DT,DLA,D);
     if strcmp(ChosenTree,'Deterministic') || strcmp(ChosenTree,'Combinated')
         VisibleNodes = Tree.nodes(1:2^(CutLevel),:);
